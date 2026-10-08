@@ -1,45 +1,74 @@
-// CalorFS Service Worker v2.0
-const CACHE_NAME = 'calorfs-v2';
-const ASSETS = [
+/* CalorFS – Service Worker
+   Cambia VERSION cada vez que publiques cambios para forzar la actualización. */
+const VERSION = 'calorfs-v1.0.0';
+const FB = 'https://www.gstatic.com/firebasejs/10.12.2/';
+
+const SHELL = [
   './',
   './index.html',
-  './manifest.webmanifest',
+  './manifest.json',
+  './icons/icon-64.png',
+  './icons/icon-96.png',
   './icons/icon-192.png',
   './icons/icon-512.png',
-  'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js',
-  'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js',
-  'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js'
+  './icons/apple-touch-icon.png',
+  './icons/favicon.ico'
+];
+const EXTERNAL = [
+  FB + 'firebase-app.js',
+  FB + 'firebase-auth.js',
+  FB + 'firebase-firestore.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
 ];
 
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting())
-  );
+self.addEventListener('install', (e) => {
+  e.waitUntil((async () => {
+    const c = await caches.open(VERSION);
+    await c.addAll(SHELL);
+    // Las librerías externas se intentan cachear sin bloquear la instalación
+    await Promise.all(EXTERNAL.map(u => fetch(u, { mode: 'cors' }).then(r => r.ok && c.put(u, r)).catch(() => {})));
+  })());
 });
 
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    ).then(() => self.clients.claim())
-  );
+self.addEventListener('activate', (e) => {
+  e.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter(k => k !== VERSION).map(k => caches.delete(k)));
+    await self.clients.claim();
+  })());
 });
 
-self.addEventListener('fetch', e => {
-  // Network first para Firebase, cache first para assets
-  if (e.request.url.includes('firestore.googleapis.com') ||
-      e.request.url.includes('firebase') ||
-      e.request.url.includes('googleapis.com')) {
-    e.respondWith(fetch(e.request).catch(() => new Response('', { status: 503 })));
+self.addEventListener('message', (e) => { if (e.data === 'SKIP_WAITING') self.skipWaiting(); });
+
+self.addEventListener('fetch', (e) => {
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+
+  // Nunca interceptar Firestore/Auth/clima: el SDK maneja su propia caché offline
+  if (/googleapis\.com|firebaseio\.com|identitytoolkit|securetoken|open-meteo\.com/.test(url.host)) return;
+
+  // Navegación: red primero (para recibir actualizaciones), caché si no hay conexión
+  if (req.mode === 'navigate') {
+    e.respondWith((async () => {
+      try {
+        const r = await fetch(req);
+        const c = await caches.open(VERSION); c.put('./index.html', r.clone());
+        return r;
+      } catch {
+        return (await caches.match('./index.html')) || (await caches.match('./'));
+      }
+    })());
     return;
   }
-  e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request).then(resp => {
-      if (resp.ok) {
-        const clone = resp.clone();
-        caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
-      }
-      return resp;
-    }))
-  );
+
+  // Recursos: caché primero y actualización en segundo plano
+  e.respondWith((async () => {
+    const cached = await caches.match(req);
+    const net = fetch(req).then(async r => {
+      if (r && (r.ok || r.type === 'opaque')) { const c = await caches.open(VERSION); c.put(req, r.clone()); }
+      return r;
+    }).catch(() => null);
+    return cached || (await net) || new Response('', { status: 504, statusText: 'Offline' });
+  })());
 });
