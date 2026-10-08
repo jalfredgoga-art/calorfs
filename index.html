@@ -63,7 +63,7 @@ label.f{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:1
 .in,select.in,textarea.in{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;background:#fff;outline:none;transition:border .15s}
 .in:focus{border-color:var(--sky)}
 textarea.in{min-height:76px;resize:vertical}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;background:var(--navy);color:#fff;min-height:46px;transition:transform .08s,filter .15s}
+.btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;background:var(--navy);color:#fff;min-height:46px;transition:transform .08s,filter .15s}
 .btn:active{transform:scale(.98)}
 .btn.sun{background:linear-gradient(135deg,var(--sun),var(--sun-2))}
 .btn.ghost{background:#fff;color:var(--navy);border:1.5px solid var(--line)}
@@ -276,7 +276,7 @@ dl.kv dd{margin:0;word-break:break-word}
 
     <form id="fLogin" class="card" autocomplete="on">
       <label class="f">Correo electrónico</label>
-      <input class="in" name="email" type="email" required autocomplete="email" placeholder="tucorreo@empresa.com">
+      <input class="in" name="email" type="email" required autocomplete="email" placeholder="tucorreo@gmail.com">
       <label class="f">Contraseña</label>
       <input class="in" name="pass" type="password" required autocomplete="current-password" minlength="6" placeholder="••••••">
       <div class="err hidden"></div>
@@ -287,12 +287,12 @@ dl.kv dd{margin:0;word-break:break-word}
     <form id="fReg" class="card hidden" autocomplete="on">
       <label class="f">Nombre completo</label>
       <input class="in" name="nombre" required placeholder="Nombre y apellidos">
-      <div class="grid2">
-        <div><label class="f">Empresa / Cliente</label><input class="in" name="empresa" placeholder="Empresa"></div>
-        <div><label class="f">Puesto</label><input class="in" name="puesto" placeholder="Supervisor SST"></div>
-      </div>
+      <label class="f">Puesto / ocupación</label>
+      <input class="in" name="puesto" placeholder="Ej. Supervisor SST">
+      <label class="f">WhatsApp (10 dígitos)</label>
+      <input class="in" name="whatsapp" type="tel" inputmode="tel" required autocomplete="tel" placeholder="Ej. 5512345678" pattern="[0-9 +()-]{10,18}">
       <label class="f">Correo electrónico</label>
-      <input class="in" name="email" type="email" required autocomplete="email">
+      <input class="in" name="email" type="email" required autocomplete="email" placeholder="tucorreo@gmail.com">
       <label class="f">Contraseña (mín. 6 caracteres)</label>
       <input class="in" name="pass" type="password" required minlength="6" autocomplete="new-password">
       <div class="err hidden"></div>
@@ -322,8 +322,8 @@ dl.kv dd{margin:0;word-break:break-word}
         <p class="small">No encontramos tu perfil. Complétalo para enviar la solicitud:</p>
         <label class="f">Nombre completo</label><input class="in" name="nombre" required>
         <div class="grid2">
-          <div><label class="f">Empresa</label><input class="in" name="empresa"></div>
           <div><label class="f">Puesto</label><input class="in" name="puesto"></div>
+          <div><label class="f">WhatsApp</label><input class="in" name="whatsapp" type="tel" inputmode="tel" required placeholder="5512345678"></div>
         </div>
         <button class="btn sun block" style="margin-top:12px">Enviar solicitud</button>
       </form>
@@ -519,8 +519,8 @@ dl.kv dd{margin:0;word-break:break-word}
         <h3>Mis datos</h3>
         <label class="f">Nombre completo</label><input class="in" id="pfNombre">
         <div class="grid2">
-          <div><label class="f">Empresa</label><input class="in" id="pfEmpresa"></div>
           <div><label class="f">Puesto</label><input class="in" id="pfPuesto"></div>
+          <div><label class="f">WhatsApp</label><input class="in" id="pfWhats" type="tel" inputmode="tel" placeholder="5512345678"></div>
         </div>
         <button class="btn block" id="btnSaveProf" style="margin-top:12px">Guardar cambios</button>
       </div>
@@ -579,7 +579,9 @@ const SUPER_ADMIN_EMAIL = CFG.SUPER_ADMIN_EMAIL || "jalfred.goga@gmail.com";
 // Enlace oficial que se comparte (si está vacío se usa la dirección actual sin "index.html")
 const APP_URL = (CFG.APP_URL || (location.origin + location.pathname.replace(/index\.html$/, ""))).trim();
 const BRAND = "Fredy Safe";    // tu marca personal: aparece en la app y en los reportes
-const APP_VERSION = "2.0.1";
+const APP_VERSION = "2.1.0";
+// Enlace que se comparte: lleva la versión para que siempre abra la más reciente
+const shareUrl = () => APP_URL.replace(/[?#].*$/, "") + "?v=" + APP_VERSION;
 const SUN_ADD_C = 8;           // °C adicionales bajo sol directo
 const MAX_PHOTOS = 4;
 
@@ -609,6 +611,10 @@ const p2 = (n) => String(n).padStart(2, "0");
 const folio = (pre, ts) => { const d = new Date(ts); return `${pre}-${d.getFullYear()}${p2(d.getMonth() + 1)}${p2(d.getDate())}-${p2(d.getHours())}${p2(d.getMinutes())}${p2(d.getSeconds())}`; };
 const lsGet = (k, d = "") => { try { return localStorage.getItem(k) ?? d; } catch { return d; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+// WhatsApp: deja solo dígitos; a números de 10 dígitos (México) les antepone 52
+const cleanWa = (v) => { const d = String(v || "").replace(/\D/g, ""); return d.length === 10 ? "52" + d : d; };
+const waLink = (num, text = "") => `https://wa.me/${cleanWa(num)}${text ? "?text=" + encodeURIComponent(text) : ""}`;
+const fmtWa = (v) => { const d = String(v || "").replace(/\D/g, "").slice(-10); return d.length === 10 ? `${d.slice(0, 2)} ${d.slice(2, 6)} ${d.slice(6)}` : (v || ""); };
 const activeSocial = () => SOCIAL.filter(s => s.url && /^https?:\/\//i.test(s.url));
 
 
@@ -712,7 +718,8 @@ async function makeFirebase(cfg) {
       cb(s.exists() ? { id: s.id, ...s.data() } : null, { fromCache: s.metadata.fromCache });
     }, e => onErr && onErr(e)),
     watchUsers: (cb) => F.onSnapshot(F.collection(db, "users"), s => cb(s.docs.map(d => ({ id: d.id, ...d.data() }))), e => console.warn(e)),
-    updateUser: (uid, patch) => F.updateDoc(F.doc(db, "users", uid), patch)
+    updateUser: (uid, patch) => F.updateDoc(F.doc(db, "users", uid), patch),
+    deleteUser: (uid) => F.deleteDoc(F.doc(db, "users", uid))
   };
 }
 
@@ -751,7 +758,8 @@ function makeDemo() {
     async changePassword(cur, nueva) { const u = U[sess()?.uid]; if (!u || u.pass !== cur) throw { code: "auth/invalid-credential" }; u.pass = nueva; persist(); },
     watchProfile(uid, cb) { const o = { uid, cb }; L.prof.push(o); setTimeout(() => cb(U[uid] ? strip(U[uid]) : null), 0); return off(L.prof, o); },
     watchUsers(cb) { L.users.push(cb); setTimeout(() => cb(Object.values(U).map(strip)), 0); return off(L.users, cb); },
-    async updateUser(uid, patch) { Object.assign(U[uid], patch); persist(); }
+    async updateUser(uid, patch) { Object.assign(U[uid], patch); persist(); },
+    async deleteUser(uid) { delete U[uid]; persist(); }
   };
 }
 
@@ -816,7 +824,10 @@ function initAuthUI() {
     finally { btn.disabled = false; btn.innerHTML = label; }
   };
   $("#fLogin").onsubmit = (e) => { e.preventDefault(); run(e.target, d => S.be.login(d.email.trim(), d.pass)); };
-  $("#fReg").onsubmit = (e) => { e.preventDefault(); run(e.target, d => S.be.register(d.email.trim(), d.pass, { nombre: d.nombre.trim(), empresa: d.empresa.trim(), puesto: d.puesto.trim() })); };
+  $("#fReg").onsubmit = (e) => { e.preventDefault(); run(e.target, d => {
+    if (String(d.whatsapp).replace(/\D/g, "").length < 10) throw { message: "Escribe tu número de WhatsApp a 10 dígitos." };
+    return S.be.register(d.email.trim(), d.pass, { nombre: d.nombre.trim(), puesto: d.puesto.trim(), whatsapp: cleanWa(d.whatsapp) });
+  }); };
   $("#btnReset").onclick = async () => {
     const email = $("#fLogin [name=email]").value.trim();
     if (!email) return toast("Escribe tu correo arriba y vuelve a tocar el enlace.");
@@ -824,7 +835,7 @@ function initAuthUI() {
   };
   $("#fComplete").onsubmit = async (e) => {
     e.preventDefault(); const d = Object.fromEntries(new FormData(e.target));
-    try { await S.be.createProfile(S.user.uid, S.user.email, { nombre: d.nombre.trim(), empresa: d.empresa.trim(), puesto: d.puesto.trim() }); }
+    try { await S.be.createProfile(S.user.uid, S.user.email, { nombre: d.nombre.trim(), puesto: d.puesto.trim(), whatsapp: cleanWa(d.whatsapp) }); }
     catch (er) { toast(authErr(er)); }
   };
   const lo = () => S.be.logout();
@@ -868,7 +879,7 @@ function onProfile(p, meta) {
       if (S.profile) return;
       if (S.user.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) {
         if (S.autoTried) return; S.autoTried = true;
-        let prof = { nombre: "Administrador", empresa: "", puesto: "" }; try { prof = { ...prof, ...JSON.parse(lsGet("calorfs_reg", "{}")) }; } catch {}
+        let prof = { nombre: "Administrador", puesto: "", whatsapp: "" }; try { prof = { ...prof, ...JSON.parse(lsGet("calorfs_reg", "{}")) }; } catch {}
         S.be.createProfile(S.user.uid, S.user.email, prof).catch(profError); return;
       }
       $("#pendTitle").textContent = "Perfil incompleto"; $("#pendMsg").textContent = "Completa tus datos para solicitar acceso.";
@@ -896,8 +907,6 @@ function onProfile(p, meta) {
   show("app");
 }
 function prefillAuthor() {
-  if (!$("#cUbi").value && S.profile?.empresa) $("#cUbi").value = S.profile.empresa;
-  if (!$("#tUbi").value && S.profile?.empresa) $("#tUbi").value = S.profile.empresa;
 }
 const autor = () => S.profile?.nombre || S.user?.email || "";
 
@@ -921,7 +930,7 @@ function initCalc() {
 }
 function calcRecord(c) {
   return {
-    autor: autor(), empresa: S.profile?.empresa || "", puesto: S.profile?.puesto || "",
+    autor: autor(), puesto: S.profile?.puesto || "",
     ts: Date.now(), tC: +fmt1(c.tC), rh: Math.round(c.rh), icC: +fmt1(c.ic), icSolC: +fmt1(c.icSol), sol: c.sun,
     nivel: c.L.k, nivelSol: c.LS.k, nivelAplicado: c.Lact.k,
     area: $("#cArea").value.trim(), ubicacion: $("#cUbi").value.trim(), actividad: $("#cAct").value.trim(),
@@ -974,7 +983,7 @@ async function pdfTermoNow() {
   if (!$("#tFirmante").value.trim()) return toast("Escribe el nombre de quien firma.");
   const noConf = TERMO_CHECK.filter(([k]) => S.check[k] === "no").length;
   const rec = {
-    autor: autor(), empresa: S.profile?.empresa || "", ts: Date.now(),
+    autor: autor(), ts: Date.now(),
     termoId: $("#tId").value.trim(), capacidad: $("#tCap").value ? +$("#tCap").value : null,
     area: $("#tArea").value.trim(), ubicacion: $("#tUbi").value.trim(),
     checklist: { ...S.check }, nivelAgua: S.nivelAgua, observaciones: $("#tObs").value.trim(), fotos: [...S.photos],
@@ -1015,9 +1024,14 @@ function userRow(u, pending) {
   }
   return `<div class="user"><div class="av">${h(initials(u.nombre || u.email))}</div><div class="bd">
     <b>${h(u.nombre || "Sin nombre")} ${me ? '<span class="tag">Tú</span>' : ""}</b>
-    <span>${h(u.email)}</span><span>${h([u.puesto, u.empresa].filter(Boolean).join(" · ") || "—")} · ${fmtDay(u.createdAt)}</span>
+    <span>${h(u.email)}${u.whatsapp ? " · WhatsApp " + h(fmtWa(u.whatsapp)) : ""}</span><span>${h(u.puesto || "—")} · registrado ${fmtDay(u.createdAt)}</span>
     <div class="acts"><span class="tag ${st[0]}">${st[1]}</span><span class="tag ${u.role === "admin" ? "adm" : ""}">${sup ? "Admin principal" : h(roleName(u.role))}</span></div>
-    ${acts ? `<div class="acts">${acts}</div>` : ""}</div></div>`;
+    ${acts ? `<div class="acts">${acts}</div>` : ""}
+    ${!me ? `<div class="acts">
+      <a class="btn ghost sm" href="#" data-act="mail" data-id="${u.id}">✉️ Correo</a>
+      ${u.whatsapp ? `<a class="btn ghost sm" href="${h(waLink(u.whatsapp))}" target="_blank" rel="noopener">💬 WhatsApp</a>` : ""}
+      ${!sup || iAmSuper() ? `<button class="btn danger sm" data-act="eliminar" data-id="${u.id}">🗑 Eliminar</button>` : ""}
+    </div>` : ""}</div></div>`;
 }
 function initAdmin() {
   $("#aSearch").addEventListener("input", renderAdmin);
@@ -1025,6 +1039,13 @@ function initAdmin() {
     const b = e.target.closest("[data-act]"); if (!b) return;
     const u = S.users.find(x => x.id === b.dataset.id); if (!u) return;
     const by = autor(), who = u.nombre || u.email;
+    if (b.dataset.act === "mail") { e.preventDefault(); gmailCompose(u.email, "CalorFS", `Hola ${u.nombre || ""}:\n\n`); return; }
+    if (b.dataset.act === "eliminar") {
+      if (isSuperU(u)) return toast("El administrador principal no se puede eliminar.");
+      if (!(await confirmDlg(`¿Eliminar a ${who} de CalorFS? Desaparece de la lista y pierde el acceso. Si vuelve a entrar con su correo, tendrá que solicitar acceso de nuevo y tú decides si lo autorizas.`, "Eliminar", true))) return;
+      try { await S.be.deleteUser(u.id); toast("Usuario eliminado"); } catch (er) { toast("Error: " + (er.code || er.message)); }
+      return;
+    }
     const ops = {
       aprobar: [`¿Autorizar el acceso de ${who}?`, { status: "aprobado", approvedBy: by, approvedAt: Date.now() }, "Usuario autorizado ✔", false],
       rechazar: [`¿Rechazar la solicitud de ${who}?`, { status: "rechazado", reviewedBy: by, reviewedAt: Date.now() }, "Solicitud rechazada", true],
@@ -1036,8 +1057,16 @@ function initAdmin() {
     if (!ops || !(await confirmDlg(ops[0], "Confirmar", ops[3]))) return;
     try {
       await S.be.updateUser(u.id, ops[1]);
-      if (b.dataset.act === "aprobar") toast(ops[2], { label: "Avisar por Gmail", fn: () => gmailCompose(u.email, "Tu acceso a CalorFS fue autorizado",
-        `Hola ${u.nombre || ""}:\n\nTu cuenta de CalorFS (herramienta gratuita de ${BRAND}) ya está activa. Ingresa en:\n${APP_URL}\n\nCalorFS es una herramienta gratuita para calcular el índice de calor y documentar la revisión de termos de agua.\n\nSaludos,\n${by}`) });
+      if (b.dataset.act === "aprobar") {
+        const msg = `Hola ${u.nombre || ""}:\n\nTu cuenta de CalorFS (herramienta gratuita de ${BRAND}) ya está activa. Ingresa en:\n${shareUrl()}\n\nCalorFS es una herramienta gratuita para calcular el índice de calor y documentar la revisión de termos de agua.\n\nSaludos,\n${by}`;
+        modal("Usuario autorizado ✔", `<p style="margin-top:0">¿Quieres avisarle a <b>${h(who)}</b> que ya puede entrar?</p>
+          <div class="btns">${u.whatsapp ? `<a class="btn ok" href="${h(waLink(u.whatsapp, msg))}" target="_blank" rel="noopener">💬 WhatsApp</a>` : ""}<button class="btn sun" id="avGm">✉️ Gmail</button></div>
+          <button class="btn ghost block" id="avNo" style="margin-top:10px">Ahora no</button>`, (m, close) => {
+            $("#avGm", m).onclick = () => { gmailCompose(u.email, "Tu acceso a CalorFS fue autorizado", msg); close(); };
+            $("#avNo", m).onclick = close;
+            $$("a.btn", m).forEach(a => a.addEventListener("click", () => setTimeout(close, 300)));
+          });
+      }
       else toast(ops[2]);
     } catch (er) { toast("Error: " + (er.code || er.message)); }
   });
@@ -1052,7 +1081,7 @@ function renderProfile() {
   $("#hdrAv").textContent = initials(p.nombre || p.email);
   $("#pAv").textContent = initials(p.nombre || p.email); $("#pName").textContent = p.nombre || "Sin nombre"; $("#pEmail").textContent = p.email;
   $("#pRole").innerHTML = `<span class="tag ${p.role === "admin" ? "adm" : "closed"}">${h(isSuperU(p) ? "Administrador principal" : roleName(p.role))}</span>`;
-  if (document.activeElement?.closest?.("#v-perfil") == null) { $("#pfNombre").value = p.nombre || ""; $("#pfEmpresa").value = p.empresa || ""; $("#pfPuesto").value = p.puesto || ""; }
+  if (document.activeElement?.closest?.("#v-perfil") == null) { $("#pfNombre").value = p.nombre || ""; $("#pfPuesto").value = p.puesto || ""; $("#pfWhats").value = fmtWa(p.whatsapp); }
   $("#pVer").textContent = APP_VERSION; $("#pMode").textContent = DEMO ? "Demostración (local)" : "Cuentas en Firebase · reportes solo en tu dispositivo";
 }
 function renderSocial() {
@@ -1063,7 +1092,7 @@ function renderSocial() {
 }
 function initProfile() {
   $("#btnSaveProf").onclick = async () => {
-    try { await S.be.updateUser(S.user.uid, { nombre: $("#pfNombre").value.trim(), empresa: $("#pfEmpresa").value.trim(), puesto: $("#pfPuesto").value.trim() }); toast("Datos actualizados ✔"); }
+    try { await S.be.updateUser(S.user.uid, { nombre: $("#pfNombre").value.trim(), puesto: $("#pfPuesto").value.trim(), whatsapp: cleanWa($("#pfWhats").value) }); toast("Datos actualizados ✔"); }
     catch (e) { toast("Error: " + (e.code || e.message)); }
   };
   $("#fPass").onsubmit = async (e) => {
@@ -1088,7 +1117,7 @@ function initProfile() {
   $$(".btn-share-app").forEach(b => b.onclick = shareApp);
 }
 async function shareApp() {
-  const url = APP_URL;
+  const url = shareUrl();
   const text = `CalorFS: calcula el índice de calor (NOAA), conoce el nivel de riesgo y genera tu reporte PDF en segundos. Herramienta gratuita de ${BRAND} para SST.`;
   try { if (navigator.share) { await navigator.share({ title: "CalorFS", text, url }); return; } } catch (e) { if (e.name === "AbortError") return; }
   try { await navigator.clipboard.writeText(text + " " + url); toast("Enlace copiado: pégalo en tus redes o WhatsApp."); } catch { toast(url); }
@@ -1341,7 +1370,7 @@ async function pdfCalc(r) {
   const L = LEVELS[r.nivelAplicado], W = d.internal.pageSize.getWidth();
   let y = pdfHeader(d, "REPORTE DE ÍNDICE DE CALOR", fol, r.ts);
   y = pdfSection(d, y, "Datos generales");
-  y = pdfKV(d, y, [["Empresa / Ubic.", r.ubicacion || "—"], ["Área / Frente", r.area], ["Actividad", r.actividad], ["Trab. expuestos", r.expuestos ?? "—"], ["Fuente de datos", r.fuente], ["Coordenadas", r.lat ? `${r.lat}, ${r.lng}` : "—"], ["Elaborado por", r.autor], ["Puesto", r.puesto || "—"]]);
+  y = pdfKV(d, y, [["Empresa / Ubicación", r.ubicacion || "—"], ["Área / Frente", r.area], ["Actividad", r.actividad], ["Trab. expuestos", r.expuestos ?? "—"], ["Fuente de datos", r.fuente], ["Coordenadas", r.lat ? `${r.lat}, ${r.lng}` : "—"], ["Elaborado por", r.autor], ["Puesto", r.puesto || "—"]]);
   y = pdfSection(d, y, "Mediciones y resultado");
   y = pdfKV(d, y, [["Temp. bulbo seco", `${fmt1(r.tC)} °C (${fmt1(r.tC * 9 / 5 + 32)} °F)`], ["Humedad relativa", `${r.rh} %`], ["IC a la sombra", `${fmt1(r.icC)} °C - ${LEVELS[r.nivel].name}`], ["IC bajo sol (+8)", `${fmt1(r.icSolC)} °C - ${LEVELS[r.nivelSol].name}`], ["Sol directo", r.sol ? "Sí" : "No"], ["Nivel aplicado", L.name]]);
   y = pdfEnsure(d, y, 30);
@@ -1372,7 +1401,7 @@ async function pdfTermo(t) {
   const fol = folio("TER", t.ts), W = d.internal.pageSize.getWidth();
   let y = pdfHeader(d, "REVISIÓN DE TERMO DE AGUA", fol, t.ts);
   y = pdfSection(d, y, "Datos generales");
-  y = pdfKV(d, y, [["Empresa / Ubic.", t.ubicacion || "—"], ["Área / Frente", t.area], ["ID termo", t.termoId], ["Capacidad", t.capacidad ? t.capacidad + " L" : "—"], ["Nivel de agua", t.nivelAgua], ["Resultado", t.resultado], ["Revisó", t.autor], ["Firma", t.firmante]]);
+  y = pdfKV(d, y, [["Empresa / Ubicación", t.ubicacion || "—"], ["Área / Frente", t.area], ["ID termo", t.termoId], ["Capacidad", t.capacidad ? t.capacidad + " L" : "—"], ["Nivel de agua", t.nivelAgua], ["Resultado", t.resultado], ["Revisó", t.autor], ["Firma", t.firmante]]);
   y = pdfSection(d, y, "Lista de verificación");
   d.setFontSize(9);
   TERMO_CHECK.forEach(([k, txt], i) => {
