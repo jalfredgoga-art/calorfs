@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#E87C1E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CalorFS">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <title>CalorFS — Índice de Calor</title>
+
+  <!-- ════════════════════════════════════════════════════════
+       FIREBASE_CONFIG — Reemplaza con tu configuración real
+       ════════════════════════════════════════════════════════ -->
+  <script>
+    const FIREBASE_CONFIG = {
+      apiKey:            "AIzaSyBUBMh6H_Dqrd3HatzJkXZ8lHeNTRs_1G4",
+      authDomain:        "calorfs.firebaseapp.com",
+      projectId:         "calorfs",
+      storageBucket:     "calorfs.firebasestorage.app",
+      messagingSenderId: "72608680190",
+      appId:             "1:72608680190:web:d61b2a1eebf71da5c77daf"
+    };
+    const CONFIG_OK = !Object.values(FIREBASE_CONFIG).some(v => v.startsWith("REEMPLAZA"));
+  </script>
+
+  <!-- Firebase SDK (compat v9) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    /* ── RESET & BASE ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --orange: #E87C1E;
+      --orange-dark: #c4671a;
+      --orange-light: #fef3e8;
+      --blue: #1a5276;
+      --blue-light: #eaf2f8;
+      --green: #27ae60;
+      --red: #e74c3c;
+      --yellow: #f39c12;
+      --gray: #666;
+      --gray-light: #f5f5f5;
+      --border: #e0e0e0;
+      --shadow: 0 2px 12px rgba(0,0,0,0.10);
+      --radius: 12px;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      color: #1a1a1a;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── CONFIG WARNING ── */
+    #config-warn {
+      display: none;
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85); z-index: 9999;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    #config-warn.show { display: flex; }
+    #config-warn .box {
+      background: #fff; border-radius: 16px; padding: 32px 28px;
+      max-width: 480px; width: 100%; text-align: center;
+    }
+    #config-warn .box h2 { color: var(--orange); margin-bottom: 12px; font-size: 20px; }
+    #config-warn .box p { color: #444; font-size: 15px; line-height: 1.6; margin-bottom: 16px; }
+    #config-warn .box code {
+      display: block; background: #f0f0f0; border-radius: 8px;
+      padding: 12px; font-size: 13px; text-align: left; color: #333; margin-top: 8px;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, var(--orange) 0%, var(--blue) 100%);
+      color: white; padding: 16px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow);
+    }
+    .header-brand { display: flex; align-items: center; gap: 10px; }
+    .header-brand .logo-circle {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: white; display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 900; color: var(--orange);
+    }
+    .header-brand h1 { font-size: 18px; font-weight: 700; line-height: 1.1; }
+    .header-brand p { font-size: 11px; opacity: 0.85; }
+    .header-user { display: flex; align-items: center; gap: 8px; }
+    .header-user .user-name { font-size: 12px; opacity: 0.9; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .btn-icon { background: rgba(255,255,255,0.2); border: none; border-radius: 8px; color: white; padding: 6px 10px; cursor: pointer; font-size: 16px; }
+
+    /* ── PAGES ── */
+    .page { display: none; min-height: calc(100vh - 64px); padding-bottom: 20px; }
+    .page.active { display: block; }
+
+    /* ── AUTH PAGE ── */
+    #auth-page {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 24px;
+      background: linear-gradient(160deg, var(--orange-light) 0%, #eaf2f8 100%);
+    }
+    #auth-page.active { display: flex; }
+    .auth-card {
+      background: white; border-radius: 20px; padding: 36px 28px;
+      max-width: 400px; width: 100%; box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+    .auth-logo {
+      text-align: center; margin-bottom: 28px;
+    }
+    .auth-logo .big-logo {
+      width: 72px; height: 72px; border-radius: 18px;
+      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+      margin: 0 auto 12px; display: flex; align-items: center;
+      justify-content: center; font-size: 34px; font-weight: 900; color: white;
+    }
+    .auth-logo h2 { font-size: 22px; font-weight: 700; color: var(--blue); }
+    .auth-logo p { font-size: 12px; color: var(--gray); margin-top: 4px; }
+    .auth-tabs { display: flex; gap: 4px; background: var(--gray-light); border-radius: 10px; padding: 4px; margin-bottom: 24px; }
+    .auth-tab {
+      flex: 1; text-align: center; padding: 9px; border-radius: 8px;
+      font-size: 14px; font-weight: 600; cursor: pointer; color: var(--gray);
+      border: none; background: transparent; transition: all .2s;
+    }
+    .auth-tab.active { background: white; color: var(--orange); box-shadow: 0 1px 6px rgba(0,0,0,0.10); }
+    .auth-form { display: none; }
+    .auth-form.active { display: block; }
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 6px; }
+    .field input, .field select, .field textarea {
+      width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
+      border-radius: 10px; font-size: 15px; color: #1a1a1a;
+      transition: border-color .2s; background: white;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      outline: none; border-color: var(--orange);
+    }
+    .btn-primary {
+      width: 100%; padding: 13px; background: var(--orange);
+      border: none; border-radius: 10px; color: white;
+      font-size: 16px; font-weight: 700; cursor: pointer; transition: background .2s;
+    }
+    .btn-primary:hover { background: var(--orange-dark); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    .auth-extra { text-align: center; margin-top: 16px; font-size: 13px; color: var(--gray); }
+    .link-btn { background: none; border: none; color: var(--orange); font-size: 13px; cursor: pointer; text-decoration: underline; }
+    .msg { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 14px; display: none; }
+    .msg.err { background: #fdecea; color: #c0392b; display: block; }
+    .msg.ok { background: #eafaf1; color: #1e8449; display: block; }
+
+    /* ── PENDING APPROVAL ── */
+    #pending-page {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 24px; text-align: center;
+    }
+    #pending-page.active { display: flex; }
+    .pending-card {
+      background: white; border-radius: 20px; padding: 40px 28px;
+      max-width: 360px; width: 100%; box-shadow: var(--shadow);
+    }
+    .pending-card .icon { font-size: 48px; margin-bottom: 16px; }
+    .pending-card h2 { font-size: 20px; color: var(--blue); margin-bottom: 10px; }
+    .pending-card p { font-size: 14px; color: var(--gray); line-height: 1.6; }
+
+    /* ── BOTTOM NAV ── */
+    #bottom-nav {
+      display: none; position: fixed; bottom: 0; left: 0; right: 0;
+      background: white; border-top: 1px solid var(--border);
+      z-index: 99; box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+    }
+    #bottom-nav.show { display: flex; }
+    .nav-item {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      padding: 10px 4px 14px; cursor: pointer; color: var(--gray);
+      font-size: 10px; font-weight: 600; border: none; background: none;
+      transition: color .2s;
+    }
+    .nav-item .nav-icon { font-size: 22px; margin-bottom: 2px; }
+    .nav-item.active { color: var(--orange); }
+    .nav-badge {
+      position: relative; display: inline-block;
+    }
+    .badge {
+      position: absolute; top: -4px; right: -8px;
+      background: var(--red); color: white; border-radius: 10px;
+      font-size: 10px; padding: 1px 5px; font-weight: 700;
+    }
+
+    /* ── MAIN APP CONTENT ── */
+    #app-content { padding-bottom: 80px; }
+
+    /* ── SECTION HEADER ── */
+    .section-header {
+      padding: 20px 20px 8px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-header h2 { font-size: 18px; font-weight: 700; color: var(--blue); }
+
+    /* ── CARDS ── */
+    .card {
+      background: white; border-radius: var(--radius); margin: 8px 16px;
+      padding: 18px 20px; box-shadow: var(--shadow);
+    }
+    .card-title { font-size: 15px; font-weight: 700; color: #333; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+
+    /* ── HEAT INDEX WIDGET ── */
+    .ic-display {
+      text-align: center; padding: 20px;
+    }
+    .ic-circle {
+      width: 140px; height: 140px; border-radius: 50%;
+      margin: 0 auto 16px; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      font-size: 44px; font-weight: 900; color: white;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.20);
+      transition: background .4s;
+    }
+    .ic-circle small { font-size: 14px; font-weight: 600; margin-top: -4px; }
+    .ic-level { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+    .ic-desc { font-size: 13px; color: var(--gray); }
+
+    /* Colores por nivel */
+    .nivel-0 { background: #3498db; } /* Sin datos */
+    .nivel-1 { background: #27ae60; } /* Sin riesgo */
+    .nivel-2 { background: #f1c40f; } /* Precaución */
+    .nivel-3 { background: #e67e22; } /* Precaución extrema */
+    .nivel-4 { background: #e74c3c; } /* Peligro */
+    .nivel-5 { background: #8e44ad; } /* Peligro extremo */
+
+    /* ── INPUTS CALOR ── */
+    .ic-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 16px 4px; }
+    .ic-input-box {
+      background: white; border-radius: var(--radius); padding: 16px;
+      box-shadow: var(--shadow); text-align: center;
+    }
+    .ic-input-box label { font-size: 12px; font-weight: 600; color: var(--gray); display: block; margin-bottom: 8px; }
+    .ic-input-box input {
+      width: 100%; text-align: center; font-size: 28px; font-weight: 700;
+      border: none; color: var(--orange); background: transparent;
+      -moz-appearance: textfield;
+    }
+    .ic-input-box input::-webkit-inner-spin-button { display: none; }
+    .ic-input-box .unit { font-size: 13px; color: var(--gray); }
+    .ic-input-box .stepper { display: flex; justify-content: center; gap: 12px; margin-top: 8px; }
+    .step-btn {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 2px solid var(--orange); background: white;
+      color: var(--orange); font-size: 20px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      line-height: 1;
+    }
+
+    /* ── ALERT BANNER ── */
+    .alert-banner {
+      margin: 8px 16px; border-radius: var(--radius); padding: 14px 16px;
+      display: none; align-items: flex-start; gap: 10px;
+      animation: fadeIn .3s;
+    }
+    .alert-banner.show { display: flex; }
+    .alert-banner.high { background: #fdecea; border-left: 4px solid var(--red); }
+    .alert-banner.medium { background: #fef9e7; border-left: 4px solid var(--yellow); }
+    .alert-icon { font-size: 22px; flex-shrink: 0; }
+    .alert-text h4 { font-size: 14px; font-weight: 700; }
+    .alert-text p { font-size: 13px; margin-top: 2px; color: #555; }
+
+    /* ── FORM REGISTRO ── */
+    .form-section { padding: 0 16px; }
+    .form-row { margin-bottom: 14px; }
+    .form-row label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 5px; }
+    .form-row input, .form-row select, .form-row textarea {
+      width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
+      border-radius: 10px; font-size: 14px; background: white;
+      transition: border-color .2s;
+    }
+    .form-row input:focus, .form-row select:focus, .form-row textarea:focus {
+      outline: none; border-color: var(--orange);
+    }
+    .radio-group { display: flex; gap: 12px; margin-top: 6px; }
+    .radio-opt {
+      flex: 1; border: 2px solid var(--border); border-radius: 10px;
+      padding: 10px; text-align: center; cursor: pointer;
+      font-size: 14px; font-weight: 600; color: var(--gray);
+      transition: all .2s;
+    }
+    .radio-opt.selected { border-color: var(--orange); background: var(--orange-light); color: var(--orange); }
+    .radio-opt.selected-no { border-color: var(--red); background: #fdecea; color: var(--red); }
+
+    /* Fotos */
+    .photo-area {
+      border: 2px dashed var(--border); border-radius: 10px;
+      padding: 20px; text-align: center; cursor: pointer;
+      position: relative; transition: border-color .2s;
+    }
+    .photo-area:hover { border-color: var(--orange); }
+    .photo-area input[type=file] { display: none; }
+    .photo-thumbs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .photo-thumb { width: 72px; height: 72px; object-fit: cover; border-radius: 8px; }
+
+    /* Firma */
+    .firma-box { border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .firma-box canvas { display: block; width: 100%; height: 120px; background: #fafafa; touch-action: none; cursor: crosshair; }
+    .firma-actions { display: flex; gap: 8px; padding: 8px; background: #f9f9f9; }
+    .btn-sm {
+      padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
+      cursor: pointer; border: none;
+    }
+    .btn-sm.secondary { background: var(--gray-light); color: #444; }
+    .btn-sm.danger { background: #fdecea; color: var(--red); }
+
+    /* Follow-up alert */
+    .followup-box {
+      background: #fef9e7; border: 1.5px solid var(--yellow);
+      border-radius: 10px; padding: 12px 14px; margin-top: 14px;
+      display: none;
+    }
+    .followup-box.show { display: block; }
+    .followup-box h4 { font-size: 13px; font-weight: 700; color: #7d6608; margin-bottom: 6px; }
+    .followup-box textarea { width: 100%; border: 1px solid var(--yellow); border-radius: 8px; padding: 8px; font-size: 13px; resize: vertical; }
+
+    /* ── REPORTES ── */
+    .report-filter {
+      display: flex; gap: 8px; padding: 8px 16px; overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .report-filter::-webkit-scrollbar { display: none; }
+    .filter-chip {
+      white-space: nowrap; padding: 7px 16px; border-radius: 20px;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      border: 2px solid var(--border); background: white; color: var(--gray);
+      transition: all .2s;
+    }
+    .filter-chip.active { border-color: var(--orange); background: var(--orange); color: white; }
+
+    .record-card {
+      background: white; border-radius: var(--radius); margin: 8px 16px;
+      padding: 14px 16px; box-shadow: var(--shadow); cursor: pointer;
+    }
+    .record-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.14); }
+    .record-header { display: flex; align-items: flex-start; justify-content: space-between; }
+    .record-title { font-size: 15px; font-weight: 700; color: var(--blue); }
+    .record-date { font-size: 12px; color: var(--gray); }
+    .record-meta { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip {
+      padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    }
+    .chip.ok { background: #eafaf1; color: var(--green); }
+    .chip.warn { background: #fef9e7; color: #7d6608; }
+    .chip.bad { background: #fdecea; color: var(--red); }
+    .chip.blue { background: var(--blue-light); color: var(--blue); }
+
+    /* ── ADMIN ── */
+    .user-list-item {
+      background: white; border-radius: 10px; margin: 6px 16px;
+      padding: 14px 16px; box-shadow: var(--shadow);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .user-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--orange), var(--blue));
+      color: white; display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 700; flex-shrink: 0;
+    }
+    .user-info { flex: 1; min-width: 0; }
+    .user-name-txt { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+    .user-email-txt { font-size: 12px; color: var(--gray); }
+    .user-meta { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+    .user-actions { display: flex; gap: 6px; }
+    .btn-action {
+      padding: 5px 10px; border-radius: 8px; font-size: 12px; font-weight: 600;
+      cursor: pointer; border: none; white-space: nowrap;
+    }
+    .btn-action.approve { background: #eafaf1; color: var(--green); }
+    .btn-action.suspend { background: #fef9e7; color: #7d6608; }
+    .btn-action.delete { background: #fdecea; color: var(--red); }
+    .btn-action.activate { background: var(--blue-light); color: var(--blue); }
+
+    /* ── MÁS / INFO ── */
+    .more-item {
+      background: white; border-radius: 10px; margin: 6px 16px;
+      padding: 16px; display: flex; align-items: center; gap: 12px;
+      box-shadow: var(--shadow); cursor: pointer; border: none; width: calc(100% - 32px);
+      text-align: left;
+    }
+    .more-item .more-icon { font-size: 22px; width: 36px; text-align: center; }
+    .more-item .more-text h3 { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+    .more-item .more-text p { font-size: 12px; color: var(--gray); }
+    .more-item .more-arrow { margin-left: auto; color: var(--gray); font-size: 16px; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      z-index: 200; align-items: flex-end; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-sheet {
+      background: white; border-radius: 20px 20px 0 0;
+      width: 100%; max-height: 92vh; overflow-y: auto;
+      padding: 24px 20px 40px; animation: slideUp .25s;
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .modal-title { font-size: 18px; font-weight: 800; color: var(--blue); }
+    .btn-close { background: var(--gray-light); border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 18px; cursor: pointer; }
+
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* ── UTILS ── */
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--gray); }
+    .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; }
+    .divider { height: 1px; background: var(--border); margin: 12px 0; }
+    .text-orange { color: var(--orange); }
+    .fw-bold { font-weight: 700; }
+    .fs-12 { font-size: 12px; }
+    .fs-13 { font-size: 13px; }
+    .version-footer {
+      text-align: center; padding: 20px; font-size: 11px; color: #bbb;
+    }
+
+    /* ── SPINNER ── */
+    .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid rgba(255,255,255,.4); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (min-width: 480px) {
+      .ic-inputs { max-width: 360px; margin: 0 auto 4px; }
+      .auth-card { padding: 40px 36px; }
+      .modal-sheet { max-width: 500px; border-radius: 20px; margin: auto; }
+      .modal-overlay.open { align-items: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ CONFIG WARNING ══ -->
+<div id="config-warn">
+  <div class="box">
+    <h2>⚙️ Configuración requerida</h2>
+    <p>El bloque <strong>FIREBASE_CONFIG</strong> en <code>index.html</code> no ha sido configurado. Abre el archivo y reemplaza los valores en las primeras líneas:</p>
+    <code>
+      apiKey: "tu-api-key",<br>
+      authDomain: "tu-proyecto.firebaseapp.com",<br>
+      projectId: "tu-proyecto",<br>
+      ...
+    </code>
+    <p style="margin-top:14px; font-size:13px; color:#777;">Consulta la guía <strong>GUIA-DEPLOY.md</strong> incluida en el ZIP.</p>
+  </div>
+</div>
+
+<!-- ══ AUTH PAGE ══ -->
+<div id="auth-page" class="page active">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="big-logo">🌡️</div>
+      <h2>CalorFS</h2>
+      <p>Índice de Calor · FredySafe · NOM-015-STPS</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Iniciar sesión</button>
+      <button class="auth-tab" onclick="switchTab('register')">Registrarme</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="form-login" class="auth-form active">
+      <div id="msg-login" class="msg"></div>
+      <div class="field">
+        <label>Correo electrónico</label>
+        <input type="email" id="login-email" placeholder="tu@correo.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn-primary" onclick="doLogin()" id="btn-login">Iniciar sesión</button>
+      <div class="auth-extra">
+        <button class="link-btn" onclick="doForgot()">Olvidé mi contraseña</button>
+      </div>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="form-register" class="auth-form">
+      <div id="msg-register" class="msg"></div>
+      <div class="field">
+        <label>Nombre completo</label>
+        <input type="text" id="reg-name" placeholder="Tu nombre">
+      </div>
+      <div class="field">
+        <label>WhatsApp</label>
+        <input type="tel" id="reg-unidad" placeholder="Ej: 5512345678">
+      </div>
+      <div class="field">
+        <label>Correo electrónico</label>
+        <input type="email" id="reg-email" placeholder="tu@correo.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label>Contraseña (mínimo 6 caracteres)</label>
+        <input type="password" id="reg-pass" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <button class="btn-primary" onclick="doRegister()" id="btn-register">Solicitar acceso</button>
+      <div class="auth-extra" style="font-size:12px; color:var(--gray);">
+        Tu solicitud será revisada por el administrador
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PENDING APPROVAL ══ -->
+<div id="pending-page" class="page">
+  <div class="pending-card">
+    <div class="icon">⏳</div>
+    <h2>Solicitud pendiente</h2>
+    <p>Tu registro ha sido enviado. El administrador revisará tu solicitud y te asignará acceso. Por favor, intenta iniciar sesión más tarde.</p>
+    <br>
+    <button class="btn-primary" style="margin-top:8px;" onclick="doLogout()">Cerrar sesión</button>
+  </div>
+</div>
+
+<!-- ══ MAIN APP ══ -->
+<header id="app-header" style="display:none">
+  <div class="header-brand">
+    <div class="logo-circle">🌡️</div>
+    <div>
+      <h1>CalorFS</h1>
+      <p>FredySafe · NOM-015-STPS</p>
+    </div>
+  </div>
+  <div class="header-user">
+    <span class="user-name" id="header-user-name"></span>
+  </div>
+</header>
+
+<div id="app-content" style="display:none">
+
+  <!-- ── DASHBOARD ── -->
+  <div id="page-dashboard" class="page active">
+    <div class="section-header">
+      <h2>🌡️ Índice de Calor</h2>
+    </div>
+
+    <!-- IC display -->
+    <div class="ic-display">
+      <div class="ic-circle nivel-0" id="ic-circle">
+        <span id="ic-val">--</span>
+        <small>°C IC</small>
+      </div>
+      <div class="ic-level" id="ic-level-txt">Sin lectura</div>
+      <div class="ic-desc" id="ic-desc-txt">Ingresa temperatura y humedad</div>
+    </div>
+
+    <!-- Alert banner -->
+    <div class="alert-banner" id="ic-alert">
+      <span class="alert-icon" id="ic-alert-icon"></span>
+      <div class="alert-text">
+        <h4 id="ic-alert-title"></h4>
+        <p id="ic-alert-body"></p>
+      </div>
+    </div>
+
+    <!-- Inputs -->
+    <div class="ic-inputs">
+      <div class="ic-input-box">
+        <label>🌡 Temperatura</label>
+        <input type="number" id="inp-temp" value="30" min="0" max="60" oninput="calcIC()">
+        <div class="unit">°C (Bulbo seco)</div>
+        <div class="stepper">
+          <button class="step-btn" onclick="step('inp-temp',-1)">−</button>
+          <button class="step-btn" onclick="step('inp-temp',1)">+</button>
+        </div>
+      </div>
+      <div class="ic-input-box">
+        <label>💧 Humedad</label>
+        <input type="number" id="inp-hum" value="60" min="0" max="100" oninput="calcIC()">
+        <div class="unit">% HR</div>
+        <div class="stepper">
+          <button class="step-btn" onclick="step('inp-hum',-1)">−</button>
+          <button class="step-btn" onclick="step('inp-hum',1)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recomendaciones -->
+    <div class="card" id="card-recomend" style="display:none">
+      <div class="card-title">⚠️ Recomendaciones NOM-015-STPS</div>
+      <div id="recomend-content"></div>
+    </div>
+
+    <!-- Síntomas -->
+    <div class="card" id="card-sintomas" style="display:none">
+      <div class="card-title">🏥 Síntomas y Primeros Auxilios</div>
+      <div id="sintomas-content"></div>
+    </div>
+
+    <div class="version-footer">
+      Elaborado por José Alfredo G.G. (FredySafe)<br>
+      Versión <span id="app-version">2.0</span> · NOM-015-STPS
+    </div>
+  </div>
+
+  <!-- ── FORMULARIO TERMO DE AGUA ── -->
+  <div id="page-form" class="page">
+    <div class="section-header">
+      <h2>📋 Revisión de Termo de Agua</h2>
+    </div>
+
+    <div class="form-section">
+      <div id="msg-form" class="msg"></div>
+
+      <div class="form-row">
+        <label>Sitio / Ubicación</label>
+        <input type="text" id="f-unidad" placeholder="Ej: Área de producción, Patio de carga...">
+      </div>
+      <div class="form-row">
+        <label>Responsable o contratista</label>
+        <input type="text" id="f-responsable" placeholder="Nombre del responsable">
+      </div>
+      <div class="form-row">
+        <label>Fecha de recarga de agua</label>
+        <input type="datetime-local" id="f-fecha-recarga">
+      </div>
+      <div class="form-row">
+        <label>Temperatura al momento (°C)</label>
+        <input type="number" id="f-temp" placeholder="Ej: 34" min="0" max="60">
+      </div>
+      <div class="form-row">
+        <label>Humedad relativa (%)</label>
+        <input type="number" id="f-hum" placeholder="Ej: 65" min="0" max="100">
+      </div>
+
+      <div class="form-row">
+        <label>¿Cuenta con suero o electrolito?</label>
+        <div class="radio-group">
+          <div class="radio-opt" id="ro-si" onclick="selectRadio('suero','SI')">✅ Sí</div>
+          <div class="radio-opt" id="ro-no" onclick="selectRadio('suero','NO')">❌ No</div>
+          <div class="radio-opt" id="ro-na" onclick="selectRadio('suero','NA')">N/A</div>
+        </div>
+      </div>
+
+      <!-- Follow-up cuando es NO -->
+      <div class="followup-box" id="followup-box">
+        <h4>⚠️ Acción de seguimiento requerida</h4>
+        <p style="font-size:12px; color:#7d6608; margin-bottom:8px;">Se detectó un punto sin suero/electrolito. Describe la acción a tomar y el responsable:</p>
+        <textarea id="f-followup" rows="3" placeholder="Acción: ______ · Responsable: ______ · Fecha compromiso: ______"></textarea>
+      </div>
+
+      <!-- Fotos -->
+      <div class="form-row">
+        <label>📷 Fotografías (máx. 3)</label>
+        <div class="photo-area" onclick="document.getElementById('foto-input').click()">
+          <div style="font-size:28px">📷</div>
+          <p style="font-size:13px; color:var(--gray); margin-top:6px;">Toca para agregar fotos</p>
+          <input type="file" id="foto-input" accept="image/*" multiple onchange="handlePhotos(this)">
+        </div>
+        <div class="photo-thumbs" id="photo-thumbs"></div>
+      </div>
+
+      <!-- Firma -->
+      <div class="form-row">
+        <label>✍️ Firma del responsable</label>
+        <div class="firma-box">
+          <canvas id="firma-canvas"></canvas>
+          <div class="firma-actions">
+            <button class="btn-sm secondary" onclick="firmaUndo()">↩ Deshacer</button>
+            <button class="btn-sm danger" onclick="firmaClear()">🗑 Borrar</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="guardarRegistro()" id="btn-guardar" style="margin-top: 8px">
+        Guardar registro
+      </button>
+    </div>
+  </div>
+
+  <!-- ── REPORTES ── -->
+  <div id="page-reportes" class="page">
+    <div class="section-header">
+      <h2>📊 Reportes</h2>
+    </div>
+
+    <div class="report-filter">
+      <button class="filter-chip active" onclick="filterReport('todos')">Todos</button>
+      <button class="filter-chip" onclick="filterReport('hidratacion')">Hidratación</button>
+      <button class="filter-chip" onclick="filterReport('termo')">Termo de agua</button>
+      <button class="filter-chip" onclick="filterReport('ic')">Índice de calor</button>
+    </div>
+
+    <div id="report-list">
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <p>No hay registros aún</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ADMIN ── -->
+  <div id="page-admin" class="page">
+    <div class="section-header">
+      <h2>👥 Administración</h2>
+    </div>
+
+    <!-- Crear usuario directo -->
+    <div class="card">
+      <div class="card-title">➕ Crear usuario</div>
+      <div id="msg-admin-create" class="msg"></div>
+      <div class="form-row">
+        <label>Nombre completo</label>
+        <input type="text" id="new-name" placeholder="Nombre del usuario">
+      </div>
+      <div class="form-row">
+        <label>Correo electrónico</label>
+        <input type="email" id="new-email" placeholder="usuario@correo.com">
+      </div>
+      <div class="form-row">
+        <label>Contraseña temporal</label>
+        <input type="text" id="new-pass" placeholder="Mínimo 6 caracteres">
+      </div>
+      <div class="form-row">
+        <label>WhatsApp</label>
+        <input type="tel" id="new-unidad" placeholder="Ej: 5512345678">
+      </div>
+      <div class="form-row">
+        <label>Sitio que supervisa</label>
+        <input type="text" id="new-sitio" placeholder="Ej: Planta Norte, Bodega 2...">
+      </div>
+      <div class="form-row">
+        <label>Rol</label>
+        <select id="new-rol">
+          <option value="usuario">Usuario</option>
+          <option value="admin">Administrador</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="adminCreateUser()" id="btn-admin-create">
+        Crear y compartir acceso
+      </button>
+    </div>
+
+    <!-- Solicitudes pendientes -->
+    <div class="section-header" style="padding-top: 8px">
+      <h2>⏳ Solicitudes pendientes <span class="badge" id="pending-count" style="position:static; display:none; background:var(--red); color:white; padding:2px 7px; border-radius:10px; font-size:12px; margin-left:6px;"></span></h2>
+    </div>
+    <div id="pending-list"></div>
+
+    <!-- Lista de usuarios -->
+    <div class="section-header" style="padding-top: 8px">
+      <h2>👤 Usuarios activos</h2>
+    </div>
+    <div id="users-list"></div>
+  </div>
+
+  <!-- ── MÁS ── -->
+  <div id="page-mas" class="page">
+    <div class="section-header">
+      <h2>⋯ Más</h2>
+    </div>
+
+    <div id="mas-user-info" class="card" style="display:flex; align-items:center; gap:14px;">
+      <div class="user-avatar" id="mas-avatar"></div>
+      <div>
+        <div class="fw-bold" id="mas-name"></div>
+        <div class="fs-12" style="color:var(--gray)" id="mas-email"></div>
+        <div class="fs-12 text-orange fw-bold" id="mas-rol"></div>
+      </div>
+    </div>
+
+    <button class="more-item" onclick="showModal('modal-metodologia')">
+      <span class="more-icon">📐</span>
+      <div class="more-text">
+        <h3>Metodología</h3>
+        <p>Fórmula del índice de calor · NOM-015-STPS</p>
+      </div>
+      <span class="more-arrow">›</span>
+    </button>
+
+    <button class="more-item" onclick="window.open('privacidad.html','_blank')">
+      <span class="more-icon">🔒</span>
+      <div class="more-text">
+        <h3>Política de privacidad</h3>
+        <p>Cómo protegemos tus datos</p>
+      </div>
+      <span class="more-arrow">›</span>
+    </button>
+
+    <button class="more-item" onclick="doLogout()">
+      <span class="more-icon">🚪</span>
+      <div class="more-text">
+        <h3>Cerrar sesión</h3>
+        <p id="mas-cerrar-desc">Salir de la aplicación</p>
+      </div>
+      <span class="more-arrow">›</span>
+    </button>
+
+    <div class="version-footer">
+      Elaborado por José Alfredo G.G. (FredySafe)<br>
+      CalorFS v2.0 · NOM-015-STPS · © 2026 FredySafe
+    </div>
+  </div>
+</div>
+
+<!-- ══ BOTTOM NAV ══ -->
+<nav id="bottom-nav">
+  <button class="nav-item active" onclick="goTo('dashboard')" id="nav-dashboard">
+    <span class="nav-icon">🌡️</span>
+    <span>Calor IC</span>
+  </button>
+  <button class="nav-item" onclick="goTo('form')" id="nav-form">
+    <span class="nav-icon">📋</span>
+    <span>Registro</span>
+  </button>
+  <button class="nav-item" onclick="goTo('reportes')" id="nav-reportes">
+    <span class="nav-icon">📊</span>
+    <span>Reportes</span>
+  </button>
+  <button class="nav-item" onclick="goTo('admin')" id="nav-admin" style="display:none">
+    <div class="nav-badge">
+      <span class="nav-icon">👥</span>
+      <span class="badge" id="nav-badge-count" style="display:none"></span>
+    </div>
+    <span>Admin</span>
+  </button>
+  <button class="nav-item" onclick="goTo('mas')" id="nav-mas">
+    <span class="nav-icon">⋯</span>
+    <span>Más</span>
+  </button>
+</nav>
+
+<!-- ══ MODALES ══ -->
+<!-- Detalle registro -->
+<div class="modal-overlay" id="modal-detalle">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <span class="modal-title">Detalle del registro</span>
+      <button class="btn-close" onclick="closeModal('modal-detalle')">✕</button>
+    </div>
+    <div id="modal-detalle-content"></div>
+  </div>
+</div>
+
+<!-- Metodología -->
+<div class="modal-overlay" id="modal-metodologia">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <span class="modal-title">Metodología · IC</span>
+      <button class="btn-close" onclick="closeModal('modal-metodologia')">✕</button>
+    </div>
+    <p style="font-size:14px; color:#444; line-height:1.7;">
+      <strong>Índice de Calor (IC)</strong> — calculado mediante la ecuación de Rothfusz / NOAA, adaptada para uso en sitio conforme a <strong>NOM-015-STPS-2001</strong>.<br><br>
+      La fórmula polinómica de 9 coeficientes combina temperatura de bulbo seco (T en °C) y humedad relativa (H en %) para estimar la temperatura percibida por el cuerpo humano.<br><br>
+      <strong>Niveles de riesgo:</strong>
+    </p>
+    <div style="margin-top:12px; display:flex; flex-direction:column; gap:8px;">
+      <div style="background:#d4efdf; border-radius:8px; padding:10px 14px;">
+        <strong>🟢 &lt; 27°C — Sin riesgo</strong><br>
+        <span style="font-size:13px;">Actividad normal. Hidratación regular.</span>
+      </div>
+      <div style="background:#fef9e7; border-radius:8px; padding:10px 14px;">
+        <strong>🟡 27–32°C — Precaución</strong><br>
+        <span style="font-size:13px;">Fatiga posible. Descanso cada 2h. Agua cada 20 min.</span>
+      </div>
+      <div style="background:#fdebd0; border-radius:8px; padding:10px 14px;">
+        <strong>🟠 33–39°C — Precaución extrema</strong><br>
+        <span style="font-size:13px;">Calambres y agotamiento posibles. Rotación de turnos. EPP térmico.</span>
+      </div>
+      <div style="background:#fdecea; border-radius:8px; padding:10px 14px;">
+        <strong>🔴 40–51°C — Peligro</strong><br>
+        <span style="font-size:13px;">Alto riesgo de golpe de calor. Suspender actividad al aire libre.</span>
+      </div>
+      <div style="background:#e8daef; border-radius:8px; padding:10px 14px;">
+        <strong>🟣 &gt;51°C — Peligro extremo</strong><br>
+        <span style="font-size:13px;">Golpe de calor inminente. Detener inmediatamente toda actividad.</span>
+      </div>
+    </div>
+    <br>
+    <p style="font-size:12px; color:#999; text-align:center;">Elaborado por José Alfredo G.G. (FredySafe)</p>
+  </div>
+</div>
+
+<!-- ══ SCRIPT ══ -->
+<script>
+/* ════════════ INIT FIREBASE ════════════ */
+let db, auth, currentUser = null, currentProfile = null;
+let allRecords = [];
+let reportFilter = 'todos';
+
+// Photos storage (base64)
+let photosB64 = [];
+// Firma canvas
+let firmaCtx, firmaDrawing = false, firmaStrokes = [];
+
+function initApp() {
+  if (!CONFIG_OK) {
+    document.getElementById('config-warn').classList.add('show');
+    return;
+  }
+  firebase.initializeApp(FIREBASE_CONFIG);
+  db   = firebase.firestore();
+  auth = firebase.auth();
+
+  // Persistencia offline
+  db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+
+  auth.onAuthStateChanged(async user => {
+    if (!user) { showAuthPage(); return; }
+    currentUser = user;
+    const snap = await db.collection('users').doc(user.uid).get();
+    if (!snap.exists) { showAuthPage(); return; }
+    currentProfile = snap.data();
+
+    if (currentProfile.status === 'pending') {
+      showPendingPage(); return;
+    }
+    if (currentProfile.status === 'suspended') {
+      await auth.signOut(); showAuthPage('Tu cuenta ha sido suspendida.'); return;
+    }
+    showMainApp();
+  });
+}
+
+/* ════════════ AUTH FLOWS ════════════ */
+function switchTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0) === (tab==='login')));
+  document.getElementById('form-login').classList.toggle('active', tab==='login');
+  document.getElementById('form-register').classList.toggle('active', tab==='register');
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const btn   = document.getElementById('btn-login');
+  const msg   = document.getElementById('msg-login');
+  msg.className = 'msg';
+  if (!email || !pass) { showMsg(msg,'err','Completa todos los campos'); return; }
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+  } catch(e) {
+    showMsg(msg,'err', firebaseErrMsg(e));
+    btn.disabled = false; btn.textContent = 'Iniciar sesión';
+  }
+}
+
+async function doRegister() {
+  const name   = document.getElementById('reg-name').value.trim();
+  const unidad = document.getElementById('reg-unidad').value.trim();
+  const email  = document.getElementById('reg-email').value.trim();
+  const pass   = document.getElementById('reg-pass').value;
+  const btn    = document.getElementById('btn-register');
+  const msg    = document.getElementById('msg-register');
+  msg.className = 'msg';
+  if (!name || !email || !pass || !unidad) { showMsg(msg,'err','Completa todos los campos'); return; }
+  if (pass.length < 6) { showMsg(msg,'err','La contraseña debe tener al menos 6 caracteres'); return; }
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  try {
+    // ¿Es el primer usuario?
+    const countSnap = await db.collection('users').get();
+    const isFirst = countSnap.empty;
+    const cred = await auth.createUserWithEmailAndPassword(email, pass);
+    const uid  = cred.user.uid;
+    await db.collection('users').doc(uid).set({
+      uid, name, email, whatsapp: document.getElementById('reg-unidad').value.trim(),
+      rol:    isFirst ? 'admin' : 'usuario',
+      status: isFirst ? 'active' : 'pending',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch(e) {
+    showMsg(msg,'err', firebaseErrMsg(e));
+    btn.disabled = false; btn.textContent = 'Solicitar acceso';
+  }
+}
+
+async function doForgot() {
+  const email = document.getElementById('login-email').value.trim();
+  const msg   = document.getElementById('msg-login');
+  if (!email) { showMsg(msg,'err','Escribe tu correo en el campo de arriba'); return; }
+  try {
+    await auth.sendPasswordResetEmail(email);
+    showMsg(msg,'ok','📧 Te enviamos un correo para restablecer tu contraseña');
+  } catch(e) { showMsg(msg,'err', firebaseErrMsg(e)); }
+}
+
+async function doLogout() {
+  await auth.signOut();
+  currentUser = null; currentProfile = null;
+  showAuthPage();
+}
+
+/* ════════════ PAGE ROUTING ════════════ */
+function showAuthPage(errMsg) {
+  document.getElementById('auth-page').classList.add('active');
+  document.getElementById('pending-page').classList.remove('active');
+  document.getElementById('app-header').style.display = 'none';
+  document.getElementById('app-content').style.display = 'none';
+  document.getElementById('bottom-nav').classList.remove('show');
+  if (errMsg) {
+    const msg = document.getElementById('msg-login');
+    showMsg(msg,'err',errMsg);
+  }
+}
+function showPendingPage() {
+  document.getElementById('auth-page').classList.remove('active');
+  document.getElementById('pending-page').classList.add('active');
+  document.getElementById('app-header').style.display = 'none';
+  document.getElementById('app-content').style.display = 'none';
+  document.getElementById('bottom-nav').classList.remove('show');
+}
+function showMainApp() {
+  document.getElementById('auth-page').classList.remove('active');
+  document.getElementById('pending-page').classList.remove('active');
+  document.getElementById('app-header').style.display = '';
+  document.getElementById('app-content').style.display = '';
+  document.getElementById('bottom-nav').classList.add('show');
+  // Header
+  document.getElementById('header-user-name').textContent = currentProfile.name.split(' ')[0];
+  // Más
+  document.getElementById('mas-name').textContent  = currentProfile.name;
+  document.getElementById('mas-email').textContent = currentProfile.email;
+  document.getElementById('mas-rol').textContent   = currentProfile.rol === 'admin' ? '🔑 Administrador' : '👤 Usuario';
+  document.getElementById('mas-avatar').textContent = currentProfile.name[0].toUpperCase();
+  // Admin nav
+  if (currentProfile.rol === 'admin') {
+    document.getElementById('nav-admin').style.display = '';
+    loadAdminData();
+  }
+  // Sitio queda vacío para llenarse en cada recorrido
+  // Init firma
+  initFirma();
+  // Load records
+  loadRecords();
+  // Calc IC inicial
+  calcIC();
+  // Default nav
+  goTo('dashboard');
+}
+
+function goTo(section) {
+  document.querySelectorAll('#app-content .page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + section).classList.add('active');
+  const navEl = document.getElementById('nav-' + section);
+  if (navEl) navEl.classList.add('active');
+}
+
+/* ════════════ HEAT INDEX CALC ════════════ */
+function calcIC() {
+  const T = parseFloat(document.getElementById('inp-temp').value);
+  const H = parseFloat(document.getElementById('inp-hum').value);
+  if (isNaN(T) || isNaN(H)) return;
+
+  // Rothfusz / NOAA polynomial (°C)
+  const c1 = -8.78469475556, c2 = 1.61139411, c3 = 2.33854883889;
+  const c4 = -0.14611605, c5 = -0.012308094, c6 = -0.0164248277778;
+  const c7 = 0.002211732, c8 = 0.00072546, c9 = -0.000003582;
+  const ic = c1 + c2*T + c3*H + c4*T*H + c5*T*T + c6*H*H + c7*T*T*H + c8*T*H*H + c9*T*T*H*H;
+
+  const icR = Math.round(ic * 10) / 10;
+  document.getElementById('ic-val').textContent = icR;
+
+  const nivel = getLevel(icR);
+  const circle = document.getElementById('ic-circle');
+  circle.className = 'ic-circle nivel-' + nivel.n;
+  document.getElementById('ic-level-txt').textContent = nivel.label;
+  document.getElementById('ic-desc-txt').textContent  = nivel.desc;
+
+  // Recomendaciones
+  showRecomendaciones(nivel);
+
+  // Alert banner
+  const banner = document.getElementById('ic-alert');
+  if (nivel.n >= 4) {
+    banner.className = 'alert-banner show high';
+    document.getElementById('ic-alert-icon').textContent = '🚨';
+    document.getElementById('ic-alert-title').textContent = '¡ALERTA! Índice de calor crítico';
+    document.getElementById('ic-alert-body').textContent = nivel.alerta;
+  } else if (nivel.n >= 3) {
+    banner.className = 'alert-banner show medium';
+    document.getElementById('ic-alert-icon').textContent = '⚠️';
+    document.getElementById('ic-alert-title').textContent = 'Precaución extrema';
+    document.getElementById('ic-alert-body').textContent = nivel.alerta;
+  } else {
+    banner.className = 'alert-banner';
+  }
+}
+
+function getLevel(ic) {
+  if (ic < 27) return { n:1, label:'Sin riesgo', desc:'Condiciones seguras de trabajo', color:'#27ae60', alerta:'' };
+  if (ic < 33) return { n:2, label:'Precaución', desc:'Fatiga posible con actividad prolongada', color:'#f1c40f', alerta:'' };
+  if (ic < 40) return { n:3, label:'Precaución extrema', desc:'Calambres y agotamiento posibles', color:'#e67e22',
+    alerta:'Aumentar frecuencia de hidratación. Rotar turnos. Descanso en sombra.' };
+  if (ic < 52) return { n:4, label:'Peligro', desc:'Alto riesgo de golpe de calor', color:'#e74c3c',
+    alerta:'Suspender actividades al aire libre. Hidratación inmediata. Llamar a enfermería.' };
+  return { n:5, label:'Peligro extremo', desc:'Golpe de calor inminente', color:'#8e44ad',
+    alerta:'¡DETENER toda actividad! Emergencia médica. Llamar servicios de urgencia.' };
+}
+
+function showRecomendaciones(nivel) {
+  const card = document.getElementById('card-recomend');
+  const sint = document.getElementById('card-sintomas');
+  if (nivel.n < 2) { card.style.display='none'; sint.style.display='none'; return; }
+
+  card.style.display='';
+  sint.style.display='';
+
+  const recs = {
+    2: ['💧 Beber agua cada 20 minutos','🌂 Buscar áreas con sombra durante descansos','⏱ Reducir actividad en horarios 12–15h','👕 Ropa ligera y de colores claros'],
+    3: ['💧 Beber 500ml/hora como mínimo','⚗️ Suero oral o electrolitos si hay sudoración intensa','🔄 Rotación de turnos cada 45 minutos','🌡 Monitorear temperatura corporal','🧊 Aplicar paños frescos en cuello y muñecas','📋 Notificar al supervisor inmediatamente'],
+    4: ['🚫 Suspender toda actividad al aire libre','🏥 Contactar a enfermería o médico de empresa','❄️ Trasladar a zona fresca inmediatamente','💧 Hidratación oral si el trabajador está consciente','📞 Activar protocolo de emergencia calórica','📋 Registrar incidente en sistema de seguridad'],
+    5: ['🚨 EMERGENCIA MÉDICA — Llamar al 911','❄️ Enfriar al trabajador por todos los medios disponibles','🧊 Hielo en cuello, axilas e ingles','💧 NO administrar líquidos si hay pérdida de conciencia','📞 Activar brigada de primeros auxilios','🚑 Preparar traslado a hospital'],
+  };
+  const key = Math.min(nivel.n, 5);
+  document.getElementById('recomend-content').innerHTML = (recs[key]||[]).map(r => `<p style="padding:4px 0; font-size:14px;">• ${r}</p>`).join('');
+
+  const sints = {
+    2: ['Cansancio y debilidad', 'Piel sudorosa y caliente', 'Leve mareo'],
+    3: ['Calambres musculares', 'Náuseas leves', 'Pulso rápido', 'Piel pálida y fría con sudor abundante'],
+    4: ['Confusión o desorientación', 'Piel enrojecida y seca', 'Temperatura corporal >39°C', 'Pulso débil y rápido', 'Pérdida de conciencia posible'],
+    5: ['Temperatura >41°C', 'Pérdida de conciencia', 'Convulsiones posibles', 'Sin sudoración (piel seca)', 'Falla orgánica múltiple — emergencia crítica'],
+  };
+  document.getElementById('sintomas-content').innerHTML =
+    '<p style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:8px;">Síntomas a identificar:</p>' +
+    (sints[key]||[]).map(s => `<p style="padding:3px 0; font-size:14px;">• ${s}</p>`).join('');
+}
+
+function step(id, delta) {
+  const el = document.getElementById(id);
+  el.value = parseFloat(el.value||0) + delta;
+  calcIC();
+}
+
+/* ════════════ FIRMA ════════════ */
+function initFirma() {
+  const canvas = document.getElementById('firma-canvas');
+  canvas.width  = canvas.offsetWidth  || 340;
+  canvas.height = 120;
+  firmaCtx = canvas.getContext('2d');
+  firmaCtx.strokeStyle = '#1a1a1a';
+  firmaCtx.lineWidth   = 2;
+  firmaCtx.lineCap     = 'round';
+  firmaStrokes = [];
+
+  const pos = (e) => {
+    const r = canvas.getBoundingClientRect();
+    const src = e.touches ? e.touches[0] : e;
+    return { x: (src.clientX - r.left) * (canvas.width / r.width), y: (src.clientY - r.top) * (canvas.height / r.height) };
+  };
+  canvas.addEventListener('mousedown',  e => { firmaDrawing = true; firmaCtx.beginPath(); const p=pos(e); firmaCtx.moveTo(p.x,p.y); firmaStrokes.push([p]); });
+  canvas.addEventListener('mousemove',  e => { if (!firmaDrawing) return; const p=pos(e); firmaCtx.lineTo(p.x,p.y); firmaCtx.stroke(); firmaStrokes[firmaStrokes.length-1].push(p); });
+  canvas.addEventListener('mouseup',    () => firmaDrawing = false);
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); firmaDrawing=true; firmaCtx.beginPath(); const p=pos(e); firmaCtx.moveTo(p.x,p.y); firmaStrokes.push([p]); },{passive:false});
+  canvas.addEventListener('touchmove',  e => { e.preventDefault(); if (!firmaDrawing) return; const p=pos(e); firmaCtx.lineTo(p.x,p.y); firmaCtx.stroke(); firmaStrokes[firmaStrokes.length-1].push(p); },{passive:false});
+  canvas.addEventListener('touchend',   () => firmaDrawing = false);
+}
+
+function firmaClear() {
+  firmaCtx.clearRect(0,0,firmaCtx.canvas.width, firmaCtx.canvas.height);
+  firmaStrokes = [];
+}
+function firmaUndo() {
+  firmaStrokes.pop();
+  firmaCtx.clearRect(0,0,firmaCtx.canvas.width, firmaCtx.canvas.height);
+  firmaCtx.beginPath();
+  firmaStrokes.forEach(stroke => {
+    if (!stroke.length) return;
+    firmaCtx.moveTo(stroke[0].x, stroke[0].y);
+    stroke.forEach(p => { firmaCtx.lineTo(p.x,p.y); firmaCtx.stroke(); });
+  });
+}
+function firmaToDataURL() {
+  return firmaCtx && firmaStrokes.length ? firmaCtx.canvas.toDataURL('image/png') : null;
+}
+
+/* ════════════ PHOTOS ════════════ */
+function handlePhotos(input) {
+  const files = Array.from(input.files).slice(0, 3 - photosB64.length);
+  files.forEach(file => {
+    if (photosB64.length >= 3) return;
+    // Compress
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX = 800;
+        let w = img.width, h = img.height;
+        if (w > MAX) { h = h * MAX / w; w = MAX; }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        const b64 = canvas.toDataURL('image/jpeg', 0.7);
+        photosB64.push(b64);
+        renderThumbs();
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function renderThumbs() {
+  const c = document.getElementById('photo-thumbs');
+  c.innerHTML = photosB64.map((b,i) =>
+    `<div style="position:relative;display:inline-block">
+      <img src="${b}" class="photo-thumb">
+      <button onclick="removePhoto(${i})" style="position:absolute;top:-6px;right:-6px;background:var(--red);color:white;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:12px">✕</button>
+    </div>`
+  ).join('');
+}
+function removePhoto(i) {
+  photosB64.splice(i,1);
+  renderThumbs();
+}
+
+/* ════════════ RADIO ════════════ */
+let sueroVal = null;
+function selectRadio(campo, val) {
+  sueroVal = val;
+  ['ro-si','ro-no','ro-na'].forEach(id => document.getElementById(id).className = 'radio-opt');
+  if (val==='SI')  document.getElementById('ro-si').classList.add('selected');
+  if (val==='NO')  { document.getElementById('ro-no').classList.add('selected-no'); document.getElementById('followup-box').classList.add('show'); }
+  else              document.getElementById('followup-box').classList.remove('show');
+  if (val==='NA')  document.getElementById('ro-na').classList.add('selected');
+}
+
+/* ════════════ GUARDAR REGISTRO ════════════ */
+async function guardarRegistro() {
+  const btn = document.getElementById('btn-guardar');
+  const msg = document.getElementById('msg-form');
+  msg.className = 'msg';
+
+  const responsable = document.getElementById('f-responsable').value.trim();
+  const fechaRec    = document.getElementById('f-fecha-recarga').value;
+  const tempVal     = document.getElementById('f-temp').value;
+  const humVal      = document.getElementById('f-hum').value;
+
+  if (!responsable || !fechaRec) {
+    showMsg(msg,'err','Completa los campos obligatorios: Responsable y Fecha de recarga');
+    return;
+  }
+  if (sueroVal === null) {
+    showMsg(msg,'err','Indica si cuenta con suero o electrolito');
+    return;
+  }
+
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Guardando...';
+
+  const T = parseFloat(tempVal) || null;
+  const H = parseFloat(humVal)  || null;
+  let ic = null;
+  if (T !== null && H !== null) {
+    const c1=-8.78469475556,c2=1.61139411,c3=2.33854883889,c4=-0.14611605,c5=-0.012308094,c6=-0.0164248277778,c7=0.002211732,c8=0.00072546,c9=-0.000003582;
+    ic = Math.round((c1+c2*T+c3*H+c4*T*H+c5*T*T+c6*H*H+c7*T*T*H+c8*T*H*H+c9*T*T*H*H)*10)/10;
+  }
+
+  const firma = firmaToDataURL();
+  const record = {
+    tipo: 'termo',
+    sitio:        document.getElementById('f-unidad').value.trim() || 'Sin sitio',
+    responsable,
+    fechaRecarga: fechaRec,
+    suero:        sueroVal,
+    followup:     sueroVal==='NO' ? document.getElementById('f-followup').value.trim() : '',
+    fotos:        photosB64,
+    firma:        firma || '',
+    temperatura:  T, humedad: H, ic,
+    creadoPor:    currentUser.uid,
+    creadoPorNombre: currentProfile.name,
+    fecha: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  try {
+    await db.collection('registros').add(record);
+    showMsg(msg,'ok','✅ Registro guardado correctamente');
+    // Reset
+    document.getElementById('f-responsable').value = '';
+    document.getElementById('f-fecha-recarga').value = '';
+    document.getElementById('f-temp').value = '';
+    document.getElementById('f-hum').value = '';
+    sueroVal = null;
+    ['ro-si','ro-no','ro-na'].forEach(id => document.getElementById(id).className = 'radio-opt');
+    document.getElementById('followup-box').classList.remove('show');
+    document.getElementById('f-followup').value = '';
+    photosB64 = []; renderThumbs();
+    firmaClear();
+    loadRecords();
+    setTimeout(() => goTo('reportes'), 1200);
+  } catch(e) {
+    showMsg(msg,'err','Error al guardar: ' + e.message);
+  }
+  btn.disabled = false; btn.textContent = 'Guardar registro';
+}
+
+/* ════════════ REPORTES ════════════ */
+async function loadRecords() {
+  try {
+    let q = db.collection('registros').orderBy('fecha','desc');
+    if (currentProfile.rol !== 'admin') {
+      q = q.where('creadoPor','==', currentUser.uid);
+    }
+    const snap = await q.limit(100).get();
+    allRecords = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderRecords();
+  } catch(e) { console.error('loadRecords',e); }
+}
+
+function filterReport(f) {
+  reportFilter = f;
+  document.querySelectorAll('.filter-chip').forEach(c => {
+    c.classList.toggle('active', c.textContent.trim().toLowerCase().replace(' ','') === f || (f==='todos' && c.textContent==='Todos'));
+  });
+  renderRecords();
+}
+
+function renderRecords() {
+  const list = document.getElementById('report-list');
+  let recs = allRecords;
+  if (reportFilter === 'hidratacion') recs = recs.filter(r => r.tipo === 'hidratacion');
+  if (reportFilter === 'termo')       recs = recs.filter(r => r.tipo === 'termo');
+  if (reportFilter === 'ic')          recs = recs.filter(r => r.ic != null);
+
+  if (!recs.length) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><p>No hay registros en este filtro</p></div>';
+    return;
+  }
+  list.innerHTML = recs.map(r => {
+    const fecha = r.fecha?.toDate ? r.fecha.toDate().toLocaleString('es-MX') : 'Sin fecha';
+    const icChip = r.ic != null
+      ? `<span class="chip ${r.ic>=40?'bad':r.ic>=27?'warn':'ok'}">IC: ${r.ic}°C</span>` : '';
+    const sueroChip = r.suero ? `<span class="chip ${r.suero==='NO'?'bad':r.suero==='SI'?'ok':'blue'}">Suero: ${r.suero}</span>` : '';
+    return `<div class="record-card" onclick="showRecord('${r.id}')">
+      <div class="record-header">
+        <span class="record-title">📍 ${r.sitio || r.unidad || 'Sin sitio'}</span>
+        <span class="record-date">${fecha}</span>
+      </div>
+      <div class="fs-13" style="color:var(--gray); margin-top:6px;">👷 ${r.responsable || r.creadoPorNombre || ''}</div>
+      <div class="record-meta">${icChip}${sueroChip}${r.followup?'<span class="chip warn">⚠️ Seguimiento</span>':''}</div>
+    </div>`;
+  }).join('');
+}
+
+function showRecord(id) {
+  const r = allRecords.find(x => x.id === id);
+  if (!r) return;
+  const fecha = r.fecha?.toDate ? r.fecha.toDate().toLocaleString('es-MX') : '';
+  const nivel = r.ic != null ? getLevel(r.ic) : null;
+  let html = `
+    <p class="fs-12" style="color:var(--gray)">${fecha}</p>
+    <h3 style="margin:8px 0 4px; color:var(--blue)">📍 ${r.sitio || r.unidad || 'Sin sitio'}</h3>
+    <div class="divider"></div>
+    <p><strong>Responsable:</strong> ${r.responsable || ''}</p>
+    <p><strong>Fecha de recarga:</strong> ${r.fechaRecarga || ''}</p>
+    <p><strong>Registrado por:</strong> ${r.creadoPorNombre || ''}</p>
+  `;
+  if (r.temperatura != null) html += `<p><strong>Temperatura:</strong> ${r.temperatura}°C | <strong>Humedad:</strong> ${r.humedad}%</p>`;
+  if (r.ic != null) html += `<p><strong>Índice de calor:</strong> <span style="color:${nivel.color};font-weight:700">${r.ic}°C — ${nivel.label}</span></p>`;
+  if (r.suero) html += `<p><strong>Suero/Electrolito:</strong> ${r.suero}</p>`;
+  if (r.followup) html += `<div class="followup-box show" style="margin-top:10px"><h4>⚠️ Seguimiento</h4><p style="font-size:13px">${r.followup}</p></div>`;
+  if (r.fotos && r.fotos.length) html += `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">${r.fotos.map(f=>`<img src="${f}" style="width:80px;height:80px;object-fit:cover;border-radius:8px">`).join('')}</div>`;
+  if (r.firma) html += `<div style="margin-top:12px"><p class="fs-13 fw-bold">Firma:</p><img src="${r.firma}" style="width:100%;border-radius:8px;border:1px solid var(--border);margin-top:6px;max-height:100px;object-fit:contain"></div>`;
+
+  document.getElementById('modal-detalle-content').innerHTML = html;
+  showModal('modal-detalle');
+}
+
+/* ════════════ ADMIN ════════════ */
+async function loadAdminData() {
+  try {
+    const snap = await db.collection('users').get();
+    const users = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const pending = users.filter(u => u.status === 'pending');
+    const active  = users.filter(u => u.status === 'active');
+
+    // Badge
+    const cnt = pending.length;
+    document.getElementById('pending-count').textContent = cnt;
+    document.getElementById('pending-count').style.display = cnt > 0 ? '' : 'none';
+    document.getElementById('nav-badge-count').textContent = cnt;
+    document.getElementById('nav-badge-count').style.display = cnt > 0 ? '' : 'none';
+
+    // Pending list
+    const pList = document.getElementById('pending-list');
+    pList.innerHTML = pending.length ? pending.map(u => `
+      <div class="user-list-item">
+        <div class="user-avatar">${u.name[0].toUpperCase()}</div>
+        <div class="user-info">
+          <div class="user-name-txt">${u.name}</div>
+          <div class="user-email-txt">${u.email}</div>
+          <div class="user-meta">
+            ${u.whatsapp ? `<span class="chip blue">📱 ${u.whatsapp}</span>` : ''}
+          </div>
+        </div>
+        <div class="user-actions">
+          <button class="btn-action approve" onclick="approveUser('${u.id}','${u.name}','${u.email}')">✓ Aprobar</button>
+          <button class="btn-action delete" onclick="deleteUser('${u.id}')">✕</button>
+        </div>
+      </div>`).join('')
+      : '<div class="empty-state" style="padding:20px"><p>Sin solicitudes pendientes</p></div>';
+
+    // Active users
+    const uList = document.getElementById('users-list');
+    uList.innerHTML = active.filter(u => u.uid !== currentUser.uid).map(u => `
+      <div class="user-list-item">
+        <div class="user-avatar">${u.name[0].toUpperCase()}</div>
+        <div class="user-info">
+          <div class="user-name-txt">${u.name}</div>
+          <div class="user-email-txt">${u.email}</div>
+          <div class="user-meta">
+            <span class="chip ${u.rol==='admin'?'bad':'ok'}">${u.rol==='admin'?'Admin':'Usuario'}</span>
+            ${u.whatsapp ? `<span class="chip blue">📱 ${u.whatsapp}</span>` : ''}
+            ${u.sitio ? `<span class="chip blue">📍 ${u.sitio}</span>` : ''}
+          </div>
+        </div>
+        <div class="user-actions">
+          <button class="btn-action suspend" onclick="suspendUser('${u.id}')">⏸</button>
+          <button class="btn-action delete" onclick="deleteUser('${u.id}')">🗑</button>
+        </div>
+      </div>`).join('') || '<div class="empty-state" style="padding:20px"><p>Sin usuarios activos</p></div>';
+
+  } catch(e) { console.error('loadAdminData',e); }
+}
+
+async function approveUser(uid, name, email) {
+  try {
+    await db.collection('users').doc(uid).update({ status: 'active' });
+    // Sugerir compartir por WhatsApp
+    const msg = encodeURIComponent(`Hola ${name}, tu acceso a CalorFS ha sido aprobado.\n\nCorreo: ${email}\n\nDescarga la app aquí: https://ingreenglez-a11y.github.io/calorfs/\n\n¡Bienvenido! 🌡️`);
+    window.open(`https://wa.me/?text=${msg}`, '_blank');
+    loadAdminData();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+async function suspendUser(uid) {
+  if (!confirm('¿Suspender este usuario?')) return;
+  await db.collection('users').doc(uid).update({ status: 'suspended' });
+  loadAdminData();
+}
+async function deleteUser(uid) {
+  if (!confirm('¿Eliminar este usuario? Esta acción no se puede deshacer.')) return;
+  await db.collection('users').doc(uid).delete();
+  loadAdminData();
+}
+
+async function adminCreateUser() {
+  const name    = document.getElementById('new-name').value.trim();
+  const email   = document.getElementById('new-email').value.trim();
+  const pass    = document.getElementById('new-pass').value;
+  const whatsapp = document.getElementById('new-unidad').value.trim();
+  const sitio   = document.getElementById('new-sitio').value.trim();
+  const rol     = document.getElementById('new-rol').value;
+  const btn     = document.getElementById('btn-admin-create');
+  const msg     = document.getElementById('msg-admin-create');
+  if (!name || !email || !pass) { showMsg(msg,'err','Completa nombre, correo y contraseña'); return; }
+
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  try {
+    // Crear con secundaria para no perder sesión admin
+    const secondary = firebase.initializeApp(firebase.app().options, 'secondary_' + Date.now());
+    const secAuth = secondary.auth();
+    const cred = await secAuth.createUserWithEmailAndPassword(email, pass);
+    await db.collection('users').doc(cred.user.uid).set({
+      uid: cred.user.uid, name, email, whatsapp, sitio, rol, status: 'active',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await secAuth.signOut();
+    await secondary.delete();
+
+    showMsg(msg,'ok','✅ Usuario creado. Comparte el acceso por WhatsApp.');
+    const waMsg = encodeURIComponent(`Hola ${name}, tu acceso a *CalorFS* (FredySafe) está listo.\n\n📧 Correo: ${email}\n🔑 Contraseña: ${pass}${sitio ? '\n📍 Sitio: ' + sitio : ''}\n\nDescarga la app: https://ingreenglez-a11y.github.io/calorfs/`);
+    setTimeout(() => window.open(`https://wa.me/?text=${waMsg}`, '_blank'), 800);
+    ['new-name','new-email','new-pass','new-unidad','new-sitio'].forEach(id => document.getElementById(id).value = '');
+    loadAdminData();
+  } catch(e) {
+    showMsg(msg,'err','Error: ' + firebaseErrMsg(e));
+  }
+  btn.disabled = false; btn.textContent = 'Crear y compartir acceso';
+}
+
+/* ════════════ HELPERS ════════════ */
+function showModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+// Close modal on backdrop click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+function showMsg(el, type, text) {
+  el.className = 'msg ' + type;
+  el.textContent = text;
+}
+
+function firebaseErrMsg(e) {
+  const map = {
+    'auth/user-not-found': 'Usuario no encontrado',
+    'auth/wrong-password': 'Contraseña incorrecta',
+    'auth/email-already-in-use': 'El correo ya está registrado',
+    'auth/invalid-email': 'Correo inválido',
+    'auth/weak-password': 'La contraseña debe tener al menos 6 caracteres',
+    'auth/too-many-requests': 'Demasiados intentos. Espera unos minutos.',
+    'auth/network-request-failed': 'Sin conexión a internet',
+  };
+  return map[e.code] || e.message;
+}
+
+/* ════════════ SERVICE WORKER ════════════ */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+
+/* ════════════ START ════════════ */
+initApp();
+</script>
+</body>
+</html>

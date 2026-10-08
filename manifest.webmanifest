@@ -1,0 +1,42 @@
+{
+  "id": "com.fredysafe.calorfs",
+  "name": "CalorFS — Índice de Calor",
+  "short_name": "CalorFS",
+  "description": "Calcula el índice de calor real combinando temperatura y humedad. Previene el golpe de calor con recomendaciones, síntomas y primeros auxilios. NOM-015-STPS. Por FredySafe.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "background_color": "#E87C1E",
+  "theme_color": "#E87C1E",
+  "orientation": "portrait-primary",
+  "lang": "es",
+  "dir": "ltr",
+  "categories": ["utilities", "tools", "productivity"],
+  "prefer_related_applications": false,
+  "icons": [
+    { "src": "icons/icon-72.png",  "sizes": "72x72",   "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-96.png",  "sizes": "96x96",   "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-128.png", "sizes": "128x128", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-144.png", "sizes": "144x144", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-152.png", "sizes": "152x152", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-384.png", "sizes": "384x384", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "screenshots": [
+    { "src": "screenshots/screen1.png",    "sizes": "390x844",  "type": "image/png", "label": "Índice de calor — CalorFS",   "form_factor": "narrow" },
+    { "src": "screenshots/screen2.png",    "sizes": "390x844",  "type": "image/png", "label": "Registro de termo de agua",    "form_factor": "narrow" },
+    { "src": "screenshots/screen-wide.png","sizes": "1280x800", "type": "image/png", "label": "CalorFS — vista escritorio",   "form_factor": "wide" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Calcular índice de calor",
+      "short_name": "Calcular",
+      "description": "Abre la calculadora de índice de calor",
+      "url": "./index.html",
+      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96", "type": "image/png" }]
+    }
+  ],
+  "launch_handler": { "client_mode": "focus-existing" }
+}
