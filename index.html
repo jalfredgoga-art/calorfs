@@ -959,17 +959,30 @@ async function doRegister() {
   if (pass.length < 6) { showMsg(msg,'err','La contraseña debe tener al menos 6 caracteres'); return; }
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
   try {
-    // ¿Es el primer usuario?
-    const countSnap = await db.collection('users').get();
-    const isFirst = countSnap.empty;
+    // 1. Verificar si ya existe admin (documento público, no requiere auth)
+    const configSnap = await db.collection('config').doc('app').get();
+    const isFirst = !configSnap.exists;
+    // 2. Crear usuario en Firebase Auth
     const cred = await auth.createUserWithEmailAndPassword(email, pass);
     const uid  = cred.user.uid;
+    // 3. Guardar perfil en Firestore (ya hay sesión activa)
     await db.collection('users').doc(uid).set({
-      uid, name, email, whatsapp: document.getElementById('reg-unidad').value.trim(),
-      rol:    isFirst ? 'admin' : 'usuario',
-      status: isFirst ? 'active' : 'pending',
+      uid,
+      name,
+      email,
+      whatsapp: unidad,
+      rol:      isFirst ? 'admin' : 'usuario',
+      status:   isFirst ? 'active' : 'pending',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
+    // 4. Si es el primer usuario, marcar que ya hay admin
+    if (isFirst) {
+      await db.collection('config').doc('app').set({
+        adminCreated: true,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+    // onAuthStateChanged se encarga de redirigir
   } catch(e) {
     showMsg(msg,'err', firebaseErrMsg(e));
     btn.disabled = false; btn.textContent = 'Solicitar acceso';
