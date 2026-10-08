@@ -101,7 +101,7 @@
 
     /* ── AUTH PAGE ── */
     #auth-page {
-      display: flex; align-items: center; justify-content: center;
+      display: none; align-items: center; justify-content: center;
       min-height: 100vh; padding: 24px;
       background: linear-gradient(160deg, var(--orange-light) 0%, #eaf2f8 100%);
     }
@@ -155,7 +155,7 @@
 
     /* ── PENDING APPROVAL ── */
     #pending-page {
-      display: flex; align-items: center; justify-content: center;
+      display: none; align-items: center; justify-content: center;
       min-height: 100vh; padding: 24px; text-align: center;
     }
     #pending-page.active { display: flex; }
@@ -224,13 +224,13 @@
     .ic-level { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
     .ic-desc { font-size: 13px; color: var(--gray); }
 
-    /* Colores por nivel */
+    /* Colores por nivel (escala NOAA/NWS) */
     .nivel-0 { background: #3498db; } /* Sin datos */
-    .nivel-1 { background: #27ae60; } /* Sin riesgo */
-    .nivel-2 { background: #f1c40f; } /* Precaución */
-    .nivel-3 { background: #e67e22; } /* Precaución extrema */
-    .nivel-4 { background: #e74c3c; } /* Peligro */
-    .nivel-5 { background: #8e44ad; } /* Peligro extremo */
+    .nivel-1 { background: #27ae60; color:#fff; } /* Sin riesgo — Verde */
+    .nivel-2 { background: #27ae60; color:#fff; } /* Precaución — Verde */
+    .nivel-3 { background: #f1c40f; color:#333; } /* Precaución Extrema — Amarillo */
+    .nivel-4 { background: #e67e22; color:#fff; } /* Peligro — Naranja */
+    .nivel-5 { background: #e74c3c; color:#fff; } /* Peligro Extremo — Rojo */
 
     /* ── INPUTS CALOR ── */
     .ic-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 16px 4px; }
@@ -439,6 +439,14 @@
 </head>
 <body>
 
+<!-- ══ SPLASH / LOADING ══ -->
+<div id="splash" style="position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(160deg,#fef3e8 0%,#eaf2f8 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9998;">
+  <div style="width:80px;height:80px;border-radius:20px;background:linear-gradient(135deg,#E87C1E,#c4671a);display:flex;align-items:center;justify-content:center;font-size:40px;margin-bottom:20px;box-shadow:0 8px 32px rgba(232,124,30,0.35);">🌡️</div>
+  <div style="font-size:24px;font-weight:800;color:#1a5276;margin-bottom:4px;">CalorFS</div>
+  <div style="font-size:12px;color:#888;margin-bottom:32px;">Índice de Calor · FredySafe</div>
+  <div style="width:36px;height:36px;border:3px solid rgba(232,124,30,0.3);border-top-color:#E87C1E;border-radius:50%;animation:spin .7s linear infinite;"></div>
+</div>
+
 <!-- ══ CONFIG WARNING ══ -->
 <div id="config-warn">
   <div class="box">
@@ -455,12 +463,12 @@
 </div>
 
 <!-- ══ AUTH PAGE ══ -->
-<div id="auth-page" class="page active">
+<div id="auth-page" class="page">
   <div class="auth-card">
     <div class="auth-logo">
       <div class="big-logo">🌡️</div>
       <h2>CalorFS</h2>
-      <p>Índice de Calor · FredySafe · NOM-015-STPS</p>
+      <p>Índice de Calor · FredySafe</p>
     </div>
 
     <div class="auth-tabs">
@@ -529,7 +537,7 @@
     <div class="logo-circle">🌡️</div>
     <div>
       <h1>CalorFS</h1>
-      <p>FredySafe · NOM-015-STPS</p>
+      <p>FredySafe · Rothfusz/NOAA</p>
     </div>
   </div>
   <div class="header-user">
@@ -553,6 +561,14 @@
       </div>
       <div class="ic-level" id="ic-level-txt">Sin lectura</div>
       <div class="ic-desc" id="ic-desc-txt">Ingresa temperatura y humedad</div>
+      <div id="ic-accion-txt" style="font-size:13px;color:#555;margin-top:6px;font-weight:600;"></div>
+      <div id="ic-update-txt" style="font-size:11px;color:#aaa;margin-top:4px;"></div>
+    </div>
+
+    <!-- Aviso sol directo -->
+    <div style="margin:0 16px 8px;background:#fff8e1;border-radius:10px;padding:10px 14px;font-size:12px;color:#7d6608;display:flex;gap:8px;align-items:flex-start;">
+      <span>☀️</span>
+      <span><strong>Nota:</strong> Los valores IC se calculan en condiciones de sombra. Bajo sol directo el IC puede ser hasta <strong>8°C mayor</strong>. Considera esta corrección en trabajos exteriores sin protección solar.</span>
     </div>
 
     <!-- Alert banner -->
@@ -588,7 +604,7 @@
 
     <!-- Recomendaciones -->
     <div class="card" id="card-recomend" style="display:none">
-      <div class="card-title">⚠️ Recomendaciones NOM-015-STPS</div>
+      <div class="card-title">⚠️ Recomendaciones de Seguridad</div>
       <div id="recomend-content"></div>
     </div>
 
@@ -598,9 +614,16 @@
       <div id="sintomas-content"></div>
     </div>
 
+    <!-- Botón Generar Reporte PDF -->
+    <div style="margin:0 16px 16px;">
+      <button onclick="generarReportePDF()" style="width:100%;background:var(--blue);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+        📄 Generar Reporte Descargable
+      </button>
+    </div>
+
     <div class="version-footer">
       Elaborado por José Alfredo G.G. (FredySafe)<br>
-      Versión <span id="app-version">2.0</span> · NOM-015-STPS
+      Versión <span id="app-version">2.0</span>
     </div>
   </div>
 
@@ -774,7 +797,7 @@
       <span class="more-icon">📐</span>
       <div class="more-text">
         <h3>Metodología</h3>
-        <p>Fórmula del índice de calor · NOM-015-STPS</p>
+        <p>Fórmula del índice de calor · Rothfusz/NOAA</p>
       </div>
       <span class="more-arrow">›</span>
     </button>
@@ -799,7 +822,7 @@
 
     <div class="version-footer">
       Elaborado por José Alfredo G.G. (FredySafe)<br>
-      CalorFS v2.0 · NOM-015-STPS · © 2026 FredySafe
+      CalorFS v2.0 · Rothfusz/NOAA · © 2026 FredySafe
     </div>
   </div>
 </div>
@@ -851,7 +874,7 @@
       <button class="btn-close" onclick="closeModal('modal-metodologia')">✕</button>
     </div>
     <p style="font-size:14px; color:#444; line-height:1.7;">
-      <strong>Índice de Calor (IC)</strong> — calculado mediante la ecuación de Rothfusz / NOAA, adaptada para uso en sitio conforme a <strong>NOM-015-STPS-2001</strong>.<br><br>
+      <strong>Índice de Calor (IC)</strong> — calculado mediante la ecuación de Rothfusz / NOAA para uso en sitio.<br><br>
       La fórmula polinómica de 9 coeficientes combina temperatura de bulbo seco (T en °C) y humedad relativa (H en %) para estimar la temperatura percibida por el cuerpo humano.<br><br>
       <strong>Niveles de riesgo:</strong>
     </p>
@@ -1006,7 +1029,12 @@ async function doLogout() {
 }
 
 /* ════════════ PAGE ROUTING ════════════ */
+function hideSplash() {
+  const s = document.getElementById('splash');
+  if (s) s.style.display = 'none';
+}
 function showAuthPage(errMsg) {
+  hideSplash();
   document.getElementById('auth-page').classList.add('active');
   document.getElementById('pending-page').classList.remove('active');
   document.getElementById('app-header').style.display = 'none';
@@ -1018,6 +1046,7 @@ function showAuthPage(errMsg) {
   }
 }
 function showPendingPage() {
+  hideSplash();
   document.getElementById('auth-page').classList.remove('active');
   document.getElementById('pending-page').classList.add('active');
   document.getElementById('app-header').style.display = 'none';
@@ -1025,6 +1054,7 @@ function showPendingPage() {
   document.getElementById('bottom-nav').classList.remove('show');
 }
 function showMainApp() {
+  hideSplash();
   document.getElementById('auth-page').classList.remove('active');
   document.getElementById('pending-page').classList.remove('active');
   document.getElementById('app-header').style.display = '';
@@ -1082,6 +1112,15 @@ function calcIC() {
   document.getElementById('ic-level-txt').textContent = nivel.label;
   document.getElementById('ic-desc-txt').textContent  = nivel.desc;
 
+  // Acción recomendada y hora de actualización
+  const accionEl = document.getElementById('ic-accion-txt');
+  const updateEl = document.getElementById('ic-update-txt');
+  if (accionEl) accionEl.textContent = nivel.accion;
+  if (updateEl) {
+    const now = new Date();
+    updateEl.textContent = '⏱ Última actualización: ' + now.toLocaleTimeString('es-MX', {hour:'2-digit',minute:'2-digit'});
+  }
+
   // Recomendaciones
   showRecomendaciones(nivel);
 
@@ -1103,14 +1142,30 @@ function calcIC() {
 }
 
 function getLevel(ic) {
-  if (ic < 27) return { n:1, label:'Sin riesgo', desc:'Condiciones seguras de trabajo', color:'#27ae60', alerta:'' };
-  if (ic < 33) return { n:2, label:'Precaución', desc:'Fatiga posible con actividad prolongada', color:'#f1c40f', alerta:'' };
-  if (ic < 40) return { n:3, label:'Precaución extrema', desc:'Calambres y agotamiento posibles', color:'#e67e22',
-    alerta:'Aumentar frecuencia de hidratación. Rotar turnos. Descanso en sombra.' };
-  if (ic < 52) return { n:4, label:'Peligro', desc:'Alto riesgo de golpe de calor', color:'#e74c3c',
-    alerta:'Suspender actividades al aire libre. Hidratación inmediata. Llamar a enfermería.' };
-  return { n:5, label:'Peligro extremo', desc:'Golpe de calor inminente', color:'#8e44ad',
-    alerta:'¡DETENER toda actividad! Emergencia médica. Llamar servicios de urgencia.' };
+  // Escala según estándares NOAA/NWS (Rothfusz)
+  if (ic < 27) return {
+    n:1, label:'Sin riesgo', desc:'Condiciones seguras de trabajo', color:'#27ae60', alerta:'',
+    accion:'✅ Condiciones normales. Mantener hidratación regular.'
+  };
+  if (ic < 32) return {
+    n:2, label:'Precaución', desc:'Fatiga posible por exposición prolongada', color:'#27ae60', alerta:'',
+    accion:'💧 Precaución: asegurar hidratación cada 30 minutos.'
+  };
+  if (ic < 41) return {
+    n:3, label:'Precaución Extrema', desc:'Insolación y calambres posibles', color:'#f1c40f',
+    alerta:'Aumentar frecuencia de hidratación. Rotar turnos. Descanso en sombra.',
+    accion:'⚠️ Precaución Extrema: hidratación cada 20 min, descansos en sombra.'
+  };
+  if (ic < 54) return {
+    n:4, label:'Peligro', desc:'Insolación y golpe de calor muy probables', color:'#e67e22',
+    alerta:'Suspender actividades al aire libre. Hidratación inmediata. Llamar a enfermería.',
+    accion:'🚨 Peligro: rotar turnos, monitorear síntomas, notificar al médico.'
+  };
+  return {
+    n:5, label:'Peligro Extremo', desc:'Golpe de calor inminente', color:'#e74c3c',
+    alerta:'¡DETENER toda actividad! Emergencia médica. Llamar servicios de urgencia.',
+    accion:'🛑 Peligro Extremo: suspender actividad, activar protocolo de emergencia.'
+  };
 }
 
 function showRecomendaciones(nivel) {
@@ -1145,6 +1200,125 @@ function step(id, delta) {
   const el = document.getElementById(id);
   el.value = parseFloat(el.value||0) + delta;
   calcIC();
+}
+
+// ── GENERAR REPORTE PDF ──────────────────────────────────────
+function generarReportePDF() {
+  const T = parseFloat(document.getElementById('inp-temp').value) || '--';
+  const H = parseFloat(document.getElementById('inp-hum').value) || '--';
+  const icVal = document.getElementById('ic-val').textContent || '--';
+  const nivelTxt = document.getElementById('ic-level-txt').textContent || '--';
+  const descTxt  = document.getElementById('ic-desc-txt').textContent || '--';
+  const accionTxt = document.getElementById('ic-accion-txt')?.textContent || '--';
+  const updateTxt = document.getElementById('ic-update-txt')?.textContent || '--';
+  const supervisor = currentUser?.name || '--';
+  const ahora = new Date();
+  const fechaStr = ahora.toLocaleDateString('es-MX',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const horaStr  = ahora.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+
+  // Determinar color del nivel para el reporte
+  const ic = parseFloat(icVal);
+  let colorNivel = '#27ae60', colorFondo = '#eafaf1';
+  if (!isNaN(ic)) {
+    if (ic >= 54) { colorNivel='#e74c3c'; colorFondo='#fdedec'; }
+    else if (ic >= 41) { colorNivel='#e67e22'; colorFondo='#fef5ec'; }
+    else if (ic >= 32) { colorNivel='#f1c40f'; colorFondo='#fefce8'; }
+  }
+
+  const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Reporte Índice de Calor — CalorFS</title>
+<style>
+  body { font-family: Arial, sans-serif; color: #222; margin: 0; padding: 24px; font-size: 13px; }
+  h1 { font-size: 20px; color: #E87C1E; margin: 0 0 4px; }
+  .sub { color: #888; font-size: 12px; margin-bottom: 20px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+  th { background: #1a5276; color: #fff; text-align: left; padding: 8px 10px; font-size: 12px; }
+  td { padding: 7px 10px; border-bottom: 1px solid #e0e0e0; vertical-align: top; }
+  tr:nth-child(even) td { background: #f9f9f9; }
+  .nivel-box { display: inline-block; padding: 6px 14px; border-radius: 8px;
+    background: ${colorFondo}; color: ${colorNivel}; font-weight: 700; font-size: 14px;
+    border: 2px solid ${colorNivel}; }
+  .ic-big { font-size: 32px; font-weight: 900; color: ${colorNivel}; }
+  .nota { background: #fff8e1; border-left: 4px solid #f39c12; padding: 10px 14px;
+    border-radius: 6px; font-size: 12px; color: #7d6608; margin-bottom: 18px; }
+  footer { margin-top: 30px; font-size: 11px; color: #aaa; text-align: center; border-top: 1px solid #eee; padding-top: 10px; }
+  @media print { button { display: none !important; } }
+</style>
+</head>
+<body>
+<h1>📊 Reporte — Índice de Calor</h1>
+<div class="sub">Generado por CalorFS · FredySafe · Rothfusz/NOAA</div>
+
+<table>
+  <tr><th colspan="2">Identificación del Registro</th></tr>
+  <tr><td><strong>Fecha</strong></td><td>${fechaStr}</td></tr>
+  <tr><td><strong>Hora</strong></td><td>${horaStr}</td></tr>
+  <tr><td><strong>Supervisor responsable</strong></td><td>${supervisor}</td></tr>
+  <tr><td><strong>Última actualización IC</strong></td><td>${updateTxt}</td></tr>
+</table>
+
+<table>
+  <tr><th colspan="2">Datos Ambientales</th></tr>
+  <tr><td><strong>Temperatura registrada</strong></td><td>${T} °C</td></tr>
+  <tr><td><strong>Humedad relativa</strong></td><td>${H} %</td></tr>
+  <tr><td><strong>Índice de Calor calculado</strong></td><td><span class="ic-big">${icVal} °C</span></td></tr>
+</table>
+
+<table>
+  <tr><th colspan="2">Nivel de Riesgo</th></tr>
+  <tr><td><strong>Categoría</strong></td><td><span class="nivel-box">${nivelTxt}</span></td></tr>
+  <tr><td><strong>Descripción</strong></td><td>${descTxt}</td></tr>
+  <tr><td><strong>Acción recomendada</strong></td><td>${accionTxt}</td></tr>
+</table>
+
+<div class="nota">
+  ☀️ <strong>Nota importante:</strong> Los valores del IC se calculan en condiciones de sombra.
+  Bajo sol directo, el IC puede ser hasta <strong>8 °C mayor</strong>.
+  Considera esta corrección en trabajos exteriores sin protección solar.
+</div>
+
+<table>
+  <tr><th colspan="2">Medidas de Control Implementadas</th></tr>
+  <tr><td><strong>Hidratación proporcionada</strong></td><td>_______________________________________</td></tr>
+  <tr><td><strong>Pausas realizadas</strong></td><td>_______________________________________</td></tr>
+  <tr><td><strong>Sombra disponible</strong></td><td>☐ Sí &nbsp;&nbsp; ☐ No</td></tr>
+  <tr><td><strong>Observaciones</strong></td><td>_______________________________________</td></tr>
+</table>
+
+<table>
+  <tr><th colspan="2">Verificación de Puntos de Hidratación</th></tr>
+  <tr><td><strong>Ubicación del punto</strong></td><td>_______________________________________</td></tr>
+  <tr><td><strong>Temperatura del agua (°C)</strong></td><td>_______________________________________</td></tr>
+  <tr><td><strong>Inventario verificado</strong></td><td>☐ Suficiente &nbsp;&nbsp; ☐ Requiere recarga</td></tr>
+  <tr><td><strong>Hora de verificación</strong></td><td>_______________________________________</td></tr>
+</table>
+
+<table>
+  <tr><th>Firma del supervisor</th><th>Firma del responsable de área</th></tr>
+  <tr><td style="height:60px;"></td><td></td></tr>
+</table>
+
+<footer>CalorFS v2.0 · FredySafe · Cálculo: Rothfusz/NOAA · ${fechaStr}</footer>
+
+<div style="text-align:center;margin-top:20px;">
+  <button onclick="window.print()" style="background:#1a5276;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:14px;cursor:pointer;">🖨️ Imprimir / Guardar como PDF</button>
+</div>
+</body></html>`;
+
+  const blob = new Blob([html], { type: 'text/html' });
+  const url  = URL.createObjectURL(blob);
+  const win  = window.open(url, '_blank');
+  if (!win) {
+    // fallback: descarga directa
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `CalorFS_Reporte_${ahora.toISOString().slice(0,10)}.html`;
+    a.click();
+  }
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
 }
 
 /* ════════════ FIRMA ════════════ */
