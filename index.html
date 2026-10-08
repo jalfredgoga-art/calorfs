@@ -522,6 +522,7 @@ dl.kv dd{margin:0;word-break:break-word}
           <div><label class="f">Puesto</label><input class="in" id="pfPuesto"></div>
           <div><label class="f">WhatsApp</label><input class="in" id="pfWhats" type="tel" inputmode="tel" placeholder="5512345678"></div>
         </div>
+        <p class="small muted hidden" id="pfLock" style="margin:10px 0 0">🔒 Tus datos aparecen en los reportes. Si necesitas corregir alguno, pídeselo al administrador.</p>
         <button class="btn block" id="btnSaveProf" style="margin-top:12px">Guardar cambios</button>
       </div>
       <div class="card">
@@ -579,7 +580,7 @@ const SUPER_ADMIN_EMAIL = CFG.SUPER_ADMIN_EMAIL || "jalfred.goga@gmail.com";
 // Enlace oficial que se comparte (si está vacío se usa la dirección actual sin "index.html")
 const APP_URL = (CFG.APP_URL || (location.origin + location.pathname.replace(/index\.html$/, ""))).trim();
 const BRAND = "Fredy Safe";    // tu marca personal: aparece en la app y en los reportes
-const APP_VERSION = "2.1.0";
+const APP_VERSION = "2.2.0";
 // Enlace que se comparte: lleva la versión para que siempre abra la más reciente
 const shareUrl = () => APP_URL.replace(/[?#].*$/, "") + "?v=" + APP_VERSION;
 const SUN_ADD_C = 8;           // °C adicionales bajo sol directo
@@ -1030,7 +1031,7 @@ function userRow(u, pending) {
     ${!me ? `<div class="acts">
       <a class="btn ghost sm" href="#" data-act="mail" data-id="${u.id}">✉️ Correo</a>
       ${u.whatsapp ? `<a class="btn ghost sm" href="${h(waLink(u.whatsapp))}" target="_blank" rel="noopener">💬 WhatsApp</a>` : ""}
-      ${!sup || iAmSuper() ? `<button class="btn danger sm" data-act="eliminar" data-id="${u.id}">🗑 Eliminar</button>` : ""}
+      ${!sup || iAmSuper() ? `<button class="btn ghost sm" data-act="editar" data-id="${u.id}">✏️ Editar datos</button><button class="btn danger sm" data-act="eliminar" data-id="${u.id}">🗑 Eliminar</button>` : ""}
     </div>` : ""}</div></div>`;
 }
 function initAdmin() {
@@ -1040,6 +1041,21 @@ function initAdmin() {
     const u = S.users.find(x => x.id === b.dataset.id); if (!u) return;
     const by = autor(), who = u.nombre || u.email;
     if (b.dataset.act === "mail") { e.preventDefault(); gmailCompose(u.email, "CalorFS", `Hola ${u.nombre || ""}:\n\n`); return; }
+    if (b.dataset.act === "editar") {
+      modal("Editar datos", `<label class="f" style="margin-top:0">Nombre completo</label><input class="in" id="edNombre" value="${h(u.nombre || "")}">
+        <label class="f">Puesto</label><input class="in" id="edPuesto" value="${h(u.puesto || "")}">
+        <label class="f">WhatsApp</label><input class="in" id="edWhats" type="tel" inputmode="tel" value="${h(fmtWa(u.whatsapp))}" placeholder="5512345678">
+        <p class="small muted">Correo: ${h(u.email)} (no se puede cambiar)</p>
+        <div class="btns"><button class="btn ghost" data-r="0">Cancelar</button><button class="btn sun" data-r="1">Guardar</button></div>`,
+        (m, close) => $$("[data-r]", m).forEach(x => x.onclick = async () => {
+          if (x.dataset.r !== "1") return close();
+          const nombre = $("#edNombre", m).value.trim();
+          if (!nombre) return toast("Escribe el nombre.");
+          try { await S.be.updateUser(u.id, { nombre, puesto: $("#edPuesto", m).value.trim(), whatsapp: cleanWa($("#edWhats", m).value) }); close(); toast("Datos actualizados ✔"); }
+          catch (er) { toast("Error: " + (er.code || er.message)); }
+        }));
+      return;
+    }
     if (b.dataset.act === "eliminar") {
       if (isSuperU(u)) return toast("El administrador principal no se puede eliminar.");
       if (!(await confirmDlg(`¿Eliminar a ${who} de CalorFS? Desaparece de la lista y pierde el acceso. Si vuelve a entrar con su correo, tendrá que solicitar acceso de nuevo y tú decides si lo autorizas.`, "Eliminar", true))) return;
@@ -1082,6 +1098,10 @@ function renderProfile() {
   $("#pAv").textContent = initials(p.nombre || p.email); $("#pName").textContent = p.nombre || "Sin nombre"; $("#pEmail").textContent = p.email;
   $("#pRole").innerHTML = `<span class="tag ${p.role === "admin" ? "adm" : "closed"}">${h(isSuperU(p) ? "Administrador principal" : roleName(p.role))}</span>`;
   if (document.activeElement?.closest?.("#v-perfil") == null) { $("#pfNombre").value = p.nombre || ""; $("#pfPuesto").value = p.puesto || ""; $("#pfWhats").value = fmtWa(p.whatsapp); }
+  // Solo los administradores editan datos; el usuario los ve pero no los cambia.
+  const canEdit = p.role === "admin";
+  ["#pfNombre", "#pfPuesto", "#pfWhats"].forEach(sel => { const el = $(sel); el.readOnly = !canEdit; el.tabIndex = canEdit ? 0 : -1; el.style.background = canEdit ? "" : "rgba(127,127,127,.12)"; el.style.borderStyle = canEdit ? "" : "dashed"; el.style.cursor = canEdit ? "" : "not-allowed"; });
+  $("#btnSaveProf").classList.toggle("hidden", !canEdit); $("#pfLock").classList.toggle("hidden", canEdit);
   $("#pVer").textContent = APP_VERSION; $("#pMode").textContent = DEMO ? "Demostración (local)" : "Cuentas en Firebase · reportes solo en tu dispositivo";
 }
 function renderSocial() {
@@ -1092,6 +1112,7 @@ function renderSocial() {
 }
 function initProfile() {
   $("#btnSaveProf").onclick = async () => {
+    if (S.profile?.role !== "admin") return toast("Solo el administrador puede cambiar los datos.");
     try { await S.be.updateUser(S.user.uid, { nombre: $("#pfNombre").value.trim(), puesto: $("#pfPuesto").value.trim(), whatsapp: cleanWa($("#pfWhats").value) }); toast("Datos actualizados ✔"); }
     catch (e) { toast("Error: " + (e.code || e.message)); }
   };
