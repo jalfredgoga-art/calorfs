@@ -21,4 +21,4 @@ export const SUPER_ADMIN_EMAIL = "jalfred.goga@gmail.com";
 
 // 3) Enlace oficial de tu app, el que se comparte con el botón "Compartir CalorFS".
 //    Ejemplo: "https://tu-usuario.github.io/calorfs/"
-export const APP_URL = "https://jalfredgoga-art.github.io/calorfs/";
+export const APP_URL = "https://calorfs-fredysafe.netlify.app/";
