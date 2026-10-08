@@ -568,22 +568,18 @@ dl.kv dd{margin:0;word-break:break-word}
 
 <script type="module">
 /* =====================================================================
-   CONFIGURACIÓN — pega aquí los datos de tu proyecto de Firebase
-   (Firebase Console > Configuración del proyecto > Tus apps > Web).
-   Si apiKey queda vacío, la app funciona en MODO DEMOSTRACIÓN (local).
+   CONFIGURACIÓN — tus datos de Firebase, el correo del administrador y el
+   enlace de la app viven en config.js (así no se pierden al actualizar).
+   Si config.js no tiene apiKey, la app funciona en MODO DEMOSTRACIÓN (local).
    ===================================================================== */
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyBUBMh6H_Dqrd3HatzJkXZ8lHeNTRs_1G4",
-  authDomain: "calorfs.firebaseapp.com",
-  projectId: "calorfs",
-  storageBucket: "calorfs.firebasestorage.app",
-  messagingSenderId: "72608680190",
-  appId: "1:72608680190:web:d61b2a1eebf71da5c77daf"
-};
-// Correo del administrador principal (se aprueba solo y no puede ser degradado).
-const SUPER_ADMIN_EMAIL = "jalfred.goga@gmail.com";
+let CFG = {};
+try { CFG = await import("./config.js"); } catch (e) { console.warn("config.js no encontrado", e); }
+const FIREBASE_CONFIG = CFG.FIREBASE_CONFIG || { apiKey: "" };
+const SUPER_ADMIN_EMAIL = CFG.SUPER_ADMIN_EMAIL || "jalfred.goga@gmail.com";
+// Enlace oficial que se comparte (si está vacío se usa la dirección actual sin "index.html")
+const APP_URL = (CFG.APP_URL || (location.origin + location.pathname.replace(/index\.html$/, ""))).trim();
 const BRAND = "Fredy Safe";    // tu marca personal: aparece en la app y en los reportes
-const APP_VERSION = "2.0.0";
+const APP_VERSION = "2.0.1";
 const SUN_ADD_C = 8;           // °C adicionales bajo sol directo
 const MAX_PHOTOS = 4;
 
@@ -1041,7 +1037,7 @@ function initAdmin() {
     try {
       await S.be.updateUser(u.id, ops[1]);
       if (b.dataset.act === "aprobar") toast(ops[2], { label: "Avisar por Gmail", fn: () => gmailCompose(u.email, "Tu acceso a CalorFS fue autorizado",
-        `Hola ${u.nombre || ""}:\n\nTu cuenta de CalorFS (herramienta gratuita de ${BRAND}) ya está activa. Ingresa en:\n${location.origin + location.pathname}\n\nCalorFS es una herramienta gratuita para calcular el índice de calor y documentar la revisión de termos de agua.\n\nSaludos,\n${by}`) });
+        `Hola ${u.nombre || ""}:\n\nTu cuenta de CalorFS (herramienta gratuita de ${BRAND}) ya está activa. Ingresa en:\n${APP_URL}\n\nCalorFS es una herramienta gratuita para calcular el índice de calor y documentar la revisión de termos de agua.\n\nSaludos,\n${by}`) });
       else toast(ops[2]);
     } catch (er) { toast("Error: " + (er.code || er.message)); }
   });
@@ -1092,7 +1088,7 @@ function initProfile() {
   $$(".btn-share-app").forEach(b => b.onclick = shareApp);
 }
 async function shareApp() {
-  const url = location.origin + location.pathname;
+  const url = APP_URL;
   const text = `CalorFS: calcula el índice de calor (NOAA), conoce el nivel de riesgo y genera tu reporte PDF en segundos. Herramienta gratuita de ${BRAND} para SST.`;
   try { if (navigator.share) { await navigator.share({ title: "CalorFS", text, url }); return; } } catch (e) { if (e.name === "AbortError") return; }
   try { await navigator.clipboard.writeText(text + " " + url); toast("Enlace copiado: pégalo en tus redes o WhatsApp."); } catch { toast(url); }
@@ -1105,14 +1101,20 @@ function initNet() {
 }
 function initSW() {
   if (!("serviceWorker" in navigator) || location.protocol === "file:") { $("#pSw").textContent = "No disponible en este entorno"; return; }
-  navigator.serviceWorker.register("sw.js").then(reg => {
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then(reg => {
     $("#pSw").textContent = "Activo ✔";
-    const ask = (w) => toast("Nueva versión de CalorFS disponible", { label: "Actualizar", fn: () => w.postMessage("SKIP_WAITING") });
-    if (reg.waiting) ask(reg.waiting);
-    reg.addEventListener("updatefound", () => { const w = reg.installing; w.addEventListener("statechange", () => { if (w.state === "installed" && navigator.serviceWorker.controller) ask(w); }); });
+    // Busca versiones nuevas al abrir y cada vez que la app vuelve a primer plano
+    reg.update().catch(() => {});
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") reg.update().catch(() => {}); });
   }).catch(() => $("#pSw").textContent = "No se pudo activar");
+  // La versión nueva se instala sola; se recarga una vez para mostrarla
   let reloaded = false;
-  navigator.serviceWorker.addEventListener("controllerchange", () => { if (!reloaded) { reloaded = true; location.reload(); } });
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!hadController || reloaded) return;
+    reloaded = true; lsSet("calorfs_updated", "1"); location.reload();
+  });
+  if (lsGet("calorfs_updated") === "1") { lsSet("calorfs_updated", ""); setTimeout(() => toast(`CalorFS se actualizó a la versión ${APP_VERSION} ✔`), 800); }
 }
 
 
