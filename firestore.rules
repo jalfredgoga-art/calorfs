@@ -1,68 +1,40 @@
 rules_version = '2';
-// CalorFS – Reglas de seguridad de Firestore
+// CalorFS v2 – Reglas de seguridad de Firestore
 // Firebase Console > Firestore Database > Reglas > pegar > Publicar.
 // El correo de superEmail() debe coincidir con SUPER_ADMIN_EMAIL de index.html.
-//
-// Roles:  admin (todo) · supervisor (captura y ve sus proyectos) · visor (solo consulta sus proyectos)
+// Solo se guardan las cuentas de usuario; los reportes se generan en el dispositivo y no se almacenan.
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function superEmail() { return 'ingreenglez@gmail.com'; }
+    function superEmail() { return 'jalfred.goga@gmail.com'; }
     function signedIn() { return request.auth != null; }
     function isSuper() { return signedIn() && request.auth.token.email != null && request.auth.token.email.lower() == superEmail(); }
     function userPath() { return /databases/$(database)/documents/users/$(request.auth.uid); }
     function me() { return get(userPath()).data; }
-    function approved() { return signedIn() && exists(userPath()) && me().status == 'aprobado'; }
-    function isAdmin() { return approved() && me().role == 'admin'; }
-    function canCapture() { return approved() && me().role in ['admin', 'supervisor']; }
-    function myProjects() { return me().get('proyectos', []); }
-    function inMyProject(data) { return data.get('proyectoId', null) != null && data.proyectoId in myProjects(); }
+    function isAdmin() { return signedIn() && exists(userPath()) && me().status == 'aprobado' && me().role == 'admin'; }
 
-    // ---------- Usuarios ----------
     match /users/{uid} {
       allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
 
-      // Registro: todos nacen "supervisor/pendiente" sin proyectos; sólo el admin principal nace aprobado.
+      // Registro: todos nacen "usuario/pendiente"; solo el administrador principal nace aprobado.
       allow create: if signedIn() && request.auth.uid == uid && (
-        (request.resource.data.role == 'supervisor' && request.resource.data.status == 'pendiente'
-          && request.resource.data.get('proyectos', []).size() == 0) ||
+        (request.resource.data.role == 'usuario' && request.resource.data.status == 'pendiente') ||
         (isSuper() && request.resource.data.role == 'admin' && request.resource.data.status == 'aprobado')
       );
 
-      // El usuario edita sus datos, nunca su rol, estatus, proyectos ni correo.
-      // Un admin autoriza, asigna proyectos y designa admins; nadie salvo él mismo modifica al admin principal.
+      // El usuario edita sus datos, nunca su rol, estatus ni correo.
+      // Un admin autoriza, suspende y designa admins; nadie salvo él mismo modifica al admin principal.
       allow update: if
         (request.auth.uid == uid &&
-          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status', 'email', 'proyectos']))
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status', 'email']))
         || (isAdmin() && (resource.data.email.lower() != superEmail() || isSuper()));
 
       allow delete: if isAdmin() && resource.data.email.lower() != superEmail();
     }
 
-    // ---------- Proyectos ----------
-    match /proyectos/{id} {
-      allow read: if approved();
-      allow write: if isAdmin();
-    }
-
-    // ---------- Registros: cálculos de índice de calor y revisiones de termos ----------
-
-    match /calculos/{id} {
-      allow read: if approved() && (resource.data.uid == request.auth.uid || isAdmin() || inMyProject(resource.data));
-      allow create: if canCapture() && request.resource.data.uid == request.auth.uid
-        && (request.resource.data.get('proyectoId', null) == null || isAdmin() || inMyProject(request.resource.data));
-      allow update, delete: if isAdmin() || (canCapture() && resource.data.uid == request.auth.uid);
-    }
-
-    match /termos/{id} {
-      allow read: if approved() && (resource.data.uid == request.auth.uid || isAdmin() || inMyProject(resource.data));
-      allow create: if canCapture() && request.resource.data.uid == request.auth.uid
-        && (request.resource.data.get('proyectoId', null) == null || isAdmin() || inMyProject(request.resource.data));
-      // Autor o admin: todo. Cualquier supervisor del proyecto: solo cerrar la acción correctiva.
-      allow update: if isAdmin() || (canCapture() && resource.data.uid == request.auth.uid)
-        || (canCapture() && inMyProject(resource.data)
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['accion']));
-      allow delete: if isAdmin() || (canCapture() && resource.data.uid == request.auth.uid);
+    // Todo lo demás queda bloqueado
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>CalorFS · Índice de Calor</title>
+<title>CalorFS · Índice de Calor por Fredy Safe</title>
 <meta name="description" content="Índice de calor Rothfusz/NOAA, nivel de riesgo y revisión de termos de agua para supervisores SST.">
 <meta name="theme-color" content="#0F3557">
 <link rel="manifest" href="manifest.json">
@@ -213,6 +213,12 @@ table.at td{padding:7px 4px;border-bottom:1px solid var(--line);vertical-align:m
 .cklist label{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-weight:600}
 .cklist input{width:20px;height:20px;accent-color:var(--sun)}
 .credit{text-align:center;color:rgba(255,255,255,.7);font-size:12px;margin-top:18px}
+.social{display:flex;flex-wrap:wrap;gap:10px}
+.social a{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:99px;background:var(--sc,#13202E);color:#fff;text-decoration:none;font-weight:700;font-size:14px}
+.social a svg{width:18px;height:18px;fill:currentColor}
+.social-login a{padding:7px 12px;font-size:13px}
+.brand-by{opacity:.95;margin-top:6px!important;font-size:15px}
+.brand-card{border:1.5px solid #FBD3B5;background:linear-gradient(180deg,#FFF8F2,#fff)}
 /* ---------- Bottom nav ---------- */
 nav.bn{position:fixed;bottom:0;left:0;right:0;z-index:30;background:#fff;border-top:1px solid var(--line);padding-bottom:var(--safe-b);box-shadow:0 -4px 16px rgba(15,53,87,.06)}
 nav.bn .wrap{display:flex;padding:0 6px}
@@ -260,6 +266,7 @@ dl.kv dd{margin:0;word-break:break-word}
     <img src="icons/icon-192.png" alt="Logo CalorFS">
     <h1>CalorFS</h1>
     <p>Índice de calor y revisión de termos para SST</p>
+    <p class="brand-by">por <b>Fredy Safe</b></p>
   </div>
   <div class="panel"><div class="wrap">
     <div class="seg" id="authSeg">
@@ -290,9 +297,13 @@ dl.kv dd{margin:0;word-break:break-word}
       <input class="in" name="pass" type="password" required minlength="6" autocomplete="new-password">
       <div class="err hidden"></div>
       <button class="btn sun block" style="margin-top:14px">Crear cuenta</button>
-      <p class="small muted" style="margin:10px 0 0;text-align:center">Tu cuenta quedará pendiente hasta que un administrador la autorice y te asigne proyectos.</p>
+      <p class="small muted" style="margin:10px 0 0;text-align:center">Tu cuenta quedará pendiente hasta que el administrador la autorice.</p>
     </form>
-    <p class="small muted" style="text-align:center">CalorFS · Elaborado por José Alfredo González García</p>
+    <div class="card social-card hidden" style="text-align:center">
+      <p class="small" style="margin:0 0 10px"><b>Sígueme en redes</b> para más herramientas y tips de seguridad e higiene</p>
+      <div class="social social-login" style="justify-content:center"></div>
+    </div>
+    <p class="small muted" style="text-align:center">CalorFS · Herramienta gratuita de Fredy Safe<br>Elaborado por José Alfredo González García</p>
   </div></div>
 </div>
 
@@ -325,7 +336,7 @@ dl.kv dd{margin:0;word-break:break-word}
 <div id="scr-app" class="hidden">
   <header class="top"><div class="wrap">
     <img src="icons/icon-96.png" alt="">
-    <div class="brand"><b>CalorFS</b><small id="hdrUser"></small></div>
+    <div class="brand"><b>CalorFS</b><small id="hdrUser">por Fredy Safe</small></div>
     <div class="net" id="net"><i></i><span>En línea</span></div>
     <button class="av hdr-av" id="hdrAv" aria-label="Mi perfil"></button>
   </div></header>
@@ -391,16 +402,21 @@ dl.kv dd{margin:0;word-break:break-word}
           <div><label class="f">Área / Frente</label><input class="in" id="cArea" placeholder="Ej. Nave 2"></div>
           <div><label class="f">Trabajadores expuestos</label><input class="in" id="cExp" type="number" inputmode="numeric" min="0" placeholder="0"></div>
         </div>
-        <label class="f">Proyecto</label><select class="in proj-sel" id="cProj"></select>
-        <label class="f">Ubicación específica</label><input class="in" id="cUbi" placeholder="Ej. Azotea edificio B">
+        <label class="f">Empresa / Proyecto / Ubicación</label><input class="in" id="cUbi" placeholder="Ej. Obra Planta Querétaro, azotea B">
         <label class="f">Actividad</label><input class="in" id="cAct" placeholder="Ej. Colado de losa, soldadura…">
         <label class="f">Observaciones</label><textarea class="in" id="cNotas" placeholder="Condiciones, medidas aplicadas…"></textarea>
-        <div class="btns" style="margin-top:14px">
-          <button class="btn sun" id="btnSaveCalc">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Guardar registro</button>
-          <button class="btn ghost" id="btnPdfCalc">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Reporte PDF</button>
+        <button class="btn sun block" id="btnPdfCalc" style="margin-top:14px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Descargar reporte PDF</button>
+        <p class="small muted" style="margin:8px 0 0;text-align:center">El reporte se genera en tu dispositivo; CalorFS no guarda tus datos.</p>
+      </div>
+
+      <div class="card brand-card">
+        <div style="display:flex;gap:12px;align-items:center">
+          <img src="icons/icon-96.png" alt="" style="width:48px;height:48px;border-radius:12px;flex:none">
+          <div><b>CalorFS es gratuita, por Fredy Safe</b><div class="small muted">Si te sirvió, compártela con tu equipo y sígueme para más herramientas SST.</div></div>
         </div>
+        <div class="social" style="margin-top:12px"></div>
+        <button class="btn ghost block btn-share-app" style="margin-top:10px">🔗 Compartir CalorFS</button>
       </div>
 
       <details class="card">
@@ -428,11 +444,6 @@ dl.kv dd{margin:0;word-break:break-word}
 
     <!-- ========== TERMOS ========== -->
     <section class="view" id="v-termos">
-      <div class="seg" id="segTermo">
-        <button class="on" data-t="nuevo">Nueva revisión</button>
-        <button data-t="acciones">Acciones correctivas <span class="badge hidden" id="bdgAcc">0</span></button>
-      </div>
-
       <div id="t-nuevo">
         <div class="card">
           <h2>💧 Revisión de termo de agua</h2>
@@ -440,10 +451,9 @@ dl.kv dd{margin:0;word-break:break-word}
             <div><label class="f">ID / No. de termo</label><input class="in" id="tId" placeholder="T-01"></div>
             <div><label class="f">Capacidad (L)</label><input class="in" id="tCap" type="number" inputmode="decimal" placeholder="20"></div>
           </div>
-          <label class="f">Proyecto</label><select class="in proj-sel" id="tProj"></select>
           <div class="grid2">
             <div><label class="f">Área / Frente</label><input class="in" id="tArea" placeholder="Ej. Frente 3"></div>
-            <div><label class="f">Ubicación específica</label><input class="in" id="tUbi" placeholder="Ej. Comedor"></div>
+            <div><label class="f">Empresa / Ubicación</label><input class="in" id="tUbi" placeholder="Ej. Planta Norte, comedor"></div>
           </div>
         </div>
         <div class="card">
@@ -476,69 +486,16 @@ dl.kv dd{margin:0;word-break:break-word}
           <input class="in" id="tFirmante" placeholder="Nombre y cargo">
           <div class="sig" style="margin-top:10px"><canvas id="sigCanvas"></canvas><div class="line"></div><div class="ph" id="sigPh">Firma aquí</div></div>
           <div style="text-align:right;margin-top:6px"><button class="link" id="sigClear">Borrar firma</button></div>
-          <button class="btn sun block" id="btnSaveTermo" style="margin-top:8px">Guardar revisión</button>
+          <button class="btn sun block" id="btnPdfTermo" style="margin-top:8px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Descargar reporte PDF</button>
+          <div style="text-align:center;margin-top:8px"><button class="link" id="btnClearTermo">Limpiar formulario para una nueva revisión</button></div>
         </div>
       </div>
-
-      <div id="t-acciones" class="hidden">
-        <div class="seg" id="segAcc" style="background:#EBF0F4">
-          <button class="on" data-s="abierta">Abiertas</button>
-          <button data-s="cerrada">Cerradas</button>
-        </div>
-        <div class="list" id="accList"></div>
-      </div>
-    </section>
-
-    <!-- ========== PANEL ========== -->
-    <section class="view" id="v-panel">
-      <div class="card" style="padding:12px">
-        <div class="row">
-          <select class="in" id="dProj"><option value="">Todos mis proyectos</option></select>
-          <select class="in" id="dPer" style="flex:.7">
-            <option value="1">Hoy</option><option value="7" selected>7 días</option><option value="30">30 días</option><option value="0">Todo</option>
-          </select>
-        </div>
-      </div>
-      <div class="kpis" id="dKpi"></div>
-      <div class="card"><h3>🌡️ Índice de calor en el tiempo</h3><div id="dChart"></div></div>
-      <div class="card"><h3>📊 Distribución por nivel de riesgo</h3><div id="dDist"></div></div>
-      <div class="card"><h3>📍 Última medición por área</h3><div id="dAreas"></div></div>
-      <div class="card"><h3>🚨 Alertas recientes (Peligro o mayor)</h3><div class="list" id="dAlerts"></div></div>
-      <div class="card"><h3>💧 Termos por proyecto</h3><div id="dTermos"></div></div>
-    </section>
-
-    <!-- ========== HISTORIAL ========== -->
-    <section class="view" id="v-hist">
-      <div class="seg" id="segHist">
-        <button class="on" data-h="calculos">Índice de calor</button>
-        <button data-h="termos">Termos</button>
-      </div>
-      <div class="stats" id="hStats"></div>
-      <div class="card" style="padding:12px">
-        <div class="row">
-          <input class="in" id="hSearch" placeholder="Buscar área, ubicación, autor…">
-        </div>
-        <div class="row" style="margin-top:8px">
-          <select class="in" id="hLevel"><option value="">Todos los niveles</option></select>
-          <select class="in" id="hProj"><option value="">Todos los proyectos</option></select>
-        </div>
-        <div class="row" style="margin-top:8px">
-          <select class="in" id="hUser"><option value="">Todos los usuarios</option></select>
-        </div>
-        <div class="btns" style="margin-top:10px">
-          <button class="btn ghost sm" id="btnCsv">⬇︎ Exportar CSV (Excel)</button>
-        </div>
-      </div>
-      <div class="list" id="hList"></div>
     </section>
 
     <!-- ========== ADMIN ========== -->
     <section class="view" id="v-admin">
       <div class="stats" id="aStats"></div>
-      <div class="card">
-        <h2>🏗️ Proyectos <button class="btn sun sm" id="btnNewProj" style="margin-left:auto">+ Nuevo</button></h2>
-        <div id="aProj"></div>
-      </div>
       <div class="card">
         <h2>⏳ Solicitudes pendientes</h2>
         <div id="aPend"></div>
@@ -568,27 +525,44 @@ dl.kv dd{margin:0;word-break:break-word}
         <button class="btn block" id="btnSaveProf" style="margin-top:12px">Guardar cambios</button>
       </div>
       <div class="card">
+        <h3>🔒 Cambiar contraseña</h3>
+        <form id="fPass" autocomplete="off">
+          <label class="f" style="margin-top:0">Contraseña actual</label><input class="in" name="cur" type="password" required autocomplete="current-password">
+          <div class="grid2">
+            <div><label class="f">Nueva contraseña</label><input class="in" name="n1" type="password" required minlength="6" autocomplete="new-password"></div>
+            <div><label class="f">Confirmar</label><input class="in" name="n2" type="password" required minlength="6" autocomplete="new-password"></div>
+          </div>
+          <div class="err hidden"></div>
+          <button class="btn block" style="margin-top:12px">Actualizar contraseña</button>
+        </form>
+      </div>
+      <div class="card social-card hidden">
+        <h3>📣 Sígueme en redes · Fredy Safe</h3>
+        <p class="small muted" style="margin-top:0">Contenido de seguridad e higiene en el trabajo.</p>
+        <div class="social"></div>
+        <button class="btn ghost block btn-share-app" style="margin-top:12px">🔗 Compartir CalorFS</button>
+      </div>
+      <div class="card">
         <h3>Aplicación</h3>
         <button class="btn sun block hidden" id="btnInstall">📲 Instalar CalorFS en este dispositivo</button>
         <p class="small muted hidden" id="iosHint">En iPhone: toca <b>Compartir</b> y luego <b>“Agregar a pantalla de inicio”</b>.</p>
         <dl class="kv" style="margin-top:10px">
           <dt>Versión</dt><dd id="pVer"></dd>
-          <dt>Datos</dt><dd id="pMode"></dd>
+          <dt>Servicio</dt><dd id="pMode"></dd>
           <dt>Sin conexión</dt><dd id="pSw">Verificando…</dd>
         </dl>
       </div>
       <button class="btn danger block" id="btnLogout">Cerrar sesión</button>
-      <p class="small muted" style="text-align:center;margin-top:18px">CalorFS · Herramienta de apoyo para supervisión SST.<br>Método: Rothfusz (NOAA/NWS). Referencia normativa: NOM-015-STPS-2001.<br>Elaborado por José Alfredo González García</p>
+      <p class="small muted" style="text-align:center;margin-top:18px">CalorFS · Herramienta gratuita de apoyo para SST.<br>Método: Rothfusz (NOAA/NWS). Referencia normativa: NOM-015-STPS-2001.<br>Elaborado por José Alfredo González García · Fredy Safe</p>
     </section>
 
   </div></main>
 
   <nav class="bn"><div class="wrap">
     <button class="on" data-v="calc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>Calcular</button>
-    <button data-v="termos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.7l5.7 5.7a8 8 0 1 1-11.3 0z"/></svg>Termos<span class="badge hidden" id="bdgNavAcc">0</span></button>
-    <button data-v="panel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>Panel</button>
-    <button data-v="hist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>Historial</button>
+    <button data-v="termos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.7l5.7 5.7a8 8 0 1 1-11.3 0z"/></svg>Termos</button>
     <button data-v="admin" class="hidden" id="navAdmin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Admin<span class="badge hidden" id="bdgAdm">0</span></button>
+    <button data-v="perfil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Perfil</button>
   </div></nav>
 </div>
 
@@ -608,9 +582,21 @@ const FIREBASE_CONFIG = {
 };
 // Correo del administrador principal (se aprueba solo y no puede ser degradado).
 const SUPER_ADMIN_EMAIL = "jalfred.goga@gmail.com";
-const APP_VERSION = "1.0.0";
+const BRAND = "Fredy Safe";    // tu marca personal: aparece en la app y en los reportes
+const APP_VERSION = "2.0.0";
 const SUN_ADD_C = 8;           // °C adicionales bajo sol directo
 const MAX_PHOTOS = 4;
+
+// Redes sociales: pega el enlace completo en "url". Las que queden vacías no se muestran.
+// "usuario" es el texto que aparece en el pie de los reportes PDF (ej. "@calorfs").
+const SOCIAL = [
+  { red: "Facebook",  url: "https://www.facebook.com/Fredy.safe.2025", usuario: "fb/Fredy.safe.2025", color: "#1877F2" },
+  { red: "Instagram", url: "https://instagram.com/fredysafe",          usuario: "IG @fredysafe",      color: "#C13584" },
+  { red: "TikTok",    url: "https://tiktok.com/@fredysafe",            usuario: "TikTok @fredysafe",  color: "#111111" },
+  { red: "YouTube",   url: "https://youtube.com/@Fredysafeoficial",    usuario: "YT @Fredysafeoficial", color: "#E62117" },
+  { red: "X",         url: "https://x.com/FredySafe",                  usuario: "X @FredySafe",       color: "#000000" }
+  // Para agregar otra red: { red: "LinkedIn", url: "https://...", usuario: "in/...", color: "#0A66C2" },
+];
 /* ===================================================================== */
 
 const DEMO = !FIREBASE_CONFIG.apiKey;
@@ -622,8 +608,13 @@ const fmt1 = (n) => (Math.round(n * 10) / 10).toFixed(1);
 const fmtDate = (ts) => ts ? new Date(ts).toLocaleString("es-MX", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
 const fmtDay = (ts) => ts ? new Date(ts).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" }) : "—";
 const initials = (n) => (n || "?").trim().split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase();
-const ymd = (ts) => { const d = new Date(ts); return d.getFullYear() + String(d.getMonth() + 1).padStart(2, "0") + String(d.getDate()).padStart(2, "0"); };
-const folio = (pre, r) => `${pre}-${ymd(r.ts)}-${String(r.id || "").slice(0, 5).toUpperCase()}`;
+const p2 = (n) => String(n).padStart(2, "0");
+// Folio generado en el momento: PREFIJO-AAAAMMDD-HHMMSS
+const folio = (pre, ts) => { const d = new Date(ts); return `${pre}-${d.getFullYear()}${p2(d.getMonth() + 1)}${p2(d.getDate())}-${p2(d.getHours())}${p2(d.getMinutes())}${p2(d.getSeconds())}`; };
+const lsGet = (k, d = "") => { try { return localStorage.getItem(k) ?? d; } catch { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+const activeSocial = () => SOCIAL.filter(s => s.url && /^https?:\/\//i.test(s.url));
+
 
 /* =====================================================================
    ÍNDICE DE CALOR — Rothfusz / NOAA NWS
@@ -687,8 +678,10 @@ const LEVELS = [
 ];
 const levelOf = (icC) => { const F = icC * 9 / 5 + 32; let L = LEVELS[0]; for (const l of LEVELS) if (F >= l.minF) L = l; return L; };
 
+
 /* =====================================================================
-   BACKEND: Firebase (nube) o Demo (localStorage)
+   BACKEND: Firebase (cuentas en la nube) o Demo (localStorage)
+   Solo se guardan las cuentas de usuario; los reportes NO se almacenan.
    ===================================================================== */
 async function makeFirebase(cfg) {
   const base = `https://www.gstatic.com/firebasejs/${FBV}/`;
@@ -698,162 +691,86 @@ async function makeFirebase(cfg) {
   let db;
   try { db = F.initializeFirestore(app, { localCache: F.persistentLocalCache({ tabManager: F.persistentMultipleTabManager() }) }); }
   catch { db = F.getFirestore(app); }
-  const conv = (d) => ({ id: d.id, ...d.data({ serverTimestamps: "estimate" }), _pending: d.metadata.hasPendingWrites });
   return {
     onAuth: (cb) => AU.onAuthStateChanged(auth, u => cb(u ? { uid: u.uid, email: u.email } : null)),
     async register(email, pass, prof) {
+      lsSet("calorfs_reg", JSON.stringify(prof));
       const c = await AU.createUserWithEmailAndPassword(auth, email, pass);
       await this.createProfile(c.user.uid, email, prof);
     },
     createProfile(uid, email, prof) {
       const sup = email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase();
-      return F.setDoc(F.doc(db, "users", uid), { ...prof, email: email.toLowerCase(), role: sup ? "admin" : "supervisor", status: sup ? "aprobado" : "pendiente", proyectos: [], createdAt: Date.now() });
+      return F.setDoc(F.doc(db, "users", uid), { ...prof, email: email.toLowerCase(), role: sup ? "admin" : "usuario", status: sup ? "aprobado" : "pendiente", createdAt: Date.now() });
     },
     login: (e, p) => AU.signInWithEmailAndPassword(auth, e, p),
     logout: () => AU.signOut(auth),
     reset: (e) => AU.sendPasswordResetEmail(auth, e),
-    watchProfile: (uid, cb) => F.onSnapshot(F.doc(db, "users", uid), s => cb(s.exists() ? { id: s.id, ...s.data() } : null), () => cb(null)),
-    watchUsers: (cb) => F.onSnapshot(F.collection(db, "users"), s => cb(s.docs.map(conv)), e => console.warn(e)),
-    updateUser: (uid, patch) => F.updateDoc(F.doc(db, "users", uid), patch),
-    save(col, data) { const r = F.doc(F.collection(db, col)); const done = F.setDoc(r, data); return { id: r.id, done }; },
-    update: (col, id, patch) => F.updateDoc(F.doc(db, col, id), patch),
-    remove: (col, id) => F.deleteDoc(F.doc(db, col, id)),
-    // spec: {all:true} | {uid} | {proyectos:[ids]}
-    watchCol(col, spec, cb) {
-      const c = F.collection(db, col);
-      const q = spec.all ? F.query(c, F.orderBy("ts", "desc"), F.limit(1000))
-              : spec.uid ? F.query(c, F.where("uid", "==", spec.uid))
-              : F.query(c, F.where("proyectoId", "in", spec.proyectos));
-      return F.onSnapshot(q, { includeMetadataChanges: true }, s => cb(s.docs.map(conv)), e => { console.warn(e); toast("No se pudo leer " + col + ": " + (e.code || e.message)); });
+    async changePassword(cur, nueva) {
+      const u = auth.currentUser;
+      await AU.reauthenticateWithCredential(u, AU.EmailAuthProvider.credential(u.email, cur));
+      await AU.updatePassword(u, nueva);
     },
-    watchProjects: (cb) => F.onSnapshot(F.collection(db, "proyectos"), s => cb(s.docs.map(conv)), e => console.warn(e)),
-    saveProject(id, data) { return id ? F.updateDoc(F.doc(db, "proyectos", id), data) : F.setDoc(F.doc(F.collection(db, "proyectos")), data); }
+    // Solo se aceptan datos confirmados por el servidor (evita entrar con un perfil que las reglas rechazaron)
+    watchProfile: (uid, cb, onErr) => F.onSnapshot(F.doc(db, "users", uid), { includeMetadataChanges: true }, s => {
+      if (s.metadata.hasPendingWrites) return;
+      cb(s.exists() ? { id: s.id, ...s.data() } : null, { fromCache: s.metadata.fromCache });
+    }, e => onErr && onErr(e)),
+    watchUsers: (cb) => F.onSnapshot(F.collection(db, "users"), s => cb(s.docs.map(d => ({ id: d.id, ...d.data() }))), e => console.warn(e)),
+    updateUser: (uid, patch) => F.updateDoc(F.doc(db, "users", uid), patch)
   };
 }
 
 function makeDemo() {
-  const KEY = "calorfs_demo_db", SK = "calorfs_demo_session";
-  const blank = () => ({ users: {}, calculos: {}, termos: {}, proyectos: {} });
-  const load = () => { try { return { ...blank(), ...JSON.parse(localStorage.getItem(KEY)) }; } catch { return blank(); } };
-  let D = load();
-  const L = { auth: [], prof: [], users: [], col: [], proj: [] };
-  const match = (spec) => (r) => spec.all || (spec.uid ? r.uid === spec.uid : spec.proyectos.includes(r.proyectoId));
-  const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch { toast("Almacenamiento local lleno (modo demo). Elimina registros o configura Firebase."); } emit(); };
-  const uidGen = () => Math.random().toString(36).slice(2, 12) + Date.now().toString(36);
+  const KEY = "calorfs_demo_users", SK = "calorfs_demo_session";
+  const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
+  let U = load();
+  const L = { auth: [], prof: [], users: [] };
   const strip = (u) => { const { pass, ...r } = u; return r; };
+  const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(U)); } catch {} emit(); };
   function emit() {
-    L.prof.forEach(({ uid, cb }) => cb(D.users[uid] ? strip(D.users[uid]) : null));
-    L.users.forEach(cb => cb(Object.values(D.users).map(strip)));
-    L.col.forEach(({ col, spec, cb }) => cb(Object.values(D[col]).filter(match(spec))));
-    L.proj.forEach(cb => cb(Object.values(D.proyectos)));
+    L.prof.forEach(({ uid, cb }) => cb(U[uid] ? strip(U[uid]) : null));
+    L.users.forEach(cb => cb(Object.values(U).map(strip)));
   }
-  const sess = () => { try { const s = JSON.parse(localStorage.getItem(SK)); return s && D.users[s.uid] ? { uid: s.uid, email: D.users[s.uid].email } : null; } catch { return null; } };
+  const sess = () => { try { const s = JSON.parse(localStorage.getItem(SK)); return s && U[s.uid] ? { uid: s.uid, email: U[s.uid].email } : null; } catch { return null; } };
   const setSess = (u) => { try { u ? localStorage.setItem(SK, JSON.stringify(u)) : localStorage.removeItem(SK); } catch {} L.auth.forEach(cb => cb(u)); };
   const off = (arr, x) => () => { const i = arr.indexOf(x); if (i >= 0) arr.splice(i, 1); };
   return {
     onAuth(cb) { L.auth.push(cb); setTimeout(() => cb(sess()), 50); return off(L.auth, cb); },
     async register(email, pass, prof) {
       email = email.toLowerCase();
-      if (Object.values(D.users).some(u => u.email === email)) throw { code: "auth/email-already-in-use" };
-      const first = Object.keys(D.users).length === 0;
-      const sup = first || email === SUPER_ADMIN_EMAIL.toLowerCase();
-      const id = uidGen();
-      D.users[id] = { id, ...prof, email, pass, role: sup ? "admin" : "supervisor", status: sup ? "aprobado" : "pendiente", proyectos: [], createdAt: Date.now() };
+      if (Object.values(U).some(u => u.email === email)) throw { code: "auth/email-already-in-use" };
+      const sup = Object.keys(U).length === 0 || email === SUPER_ADMIN_EMAIL.toLowerCase();
+      const id = Math.random().toString(36).slice(2, 12) + Date.now().toString(36);
+      U[id] = { id, ...prof, email, pass, role: sup ? "admin" : "usuario", status: sup ? "aprobado" : "pendiente", createdAt: Date.now() };
       persist(); setSess({ uid: id, email });
     },
-    async createProfile(uid, email, prof) { D.users[uid] = { id: uid, ...prof, email, role: "supervisor", status: "pendiente", proyectos: [], createdAt: Date.now() }; persist(); },
+    async createProfile(uid, email, prof) { U[uid] = { id: uid, ...prof, email, role: "usuario", status: "pendiente", createdAt: Date.now() }; persist(); },
     async login(email, pass) {
-      const u = Object.values(D.users).find(u => u.email === email.toLowerCase());
+      const u = Object.values(U).find(u => u.email === email.toLowerCase());
       if (!u || u.pass !== pass) throw { code: "auth/invalid-credential" };
       setSess({ uid: u.id, email: u.email });
     },
     async logout() { setSess(null); },
     async reset() { throw { code: "demo/reset" }; },
-    watchProfile(uid, cb) { const o = { uid, cb }; L.prof.push(o); setTimeout(() => cb(D.users[uid] ? strip(D.users[uid]) : null), 0); return off(L.prof, o); },
-    watchUsers(cb) { L.users.push(cb); setTimeout(() => cb(Object.values(D.users).map(strip)), 0); return off(L.users, cb); },
-    async updateUser(uid, patch) { Object.assign(D.users[uid], patch); persist(); },
-    save(col, data) { const id = uidGen(); D[col][id] = { id, ...data }; persist(); return { id, done: Promise.resolve() }; },
-    async update(col, id, patch) { Object.assign(D[col][id], patch); persist(); },
-    async remove(col, id) { delete D[col][id]; persist(); },
-    watchCol(col, spec, cb) { const o = { col, spec, cb }; L.col.push(o); setTimeout(() => cb(Object.values(D[col]).filter(match(spec))), 0); return off(L.col, o); },
-    watchProjects(cb) { L.proj.push(cb); setTimeout(() => cb(Object.values(D.proyectos)), 0); return off(L.proj, cb); },
-    async saveProject(id, data) { if (id) Object.assign(D.proyectos[id], data); else { const n = uidGen(); D.proyectos[n] = { id: n, ...data }; } persist(); }
+    async changePassword(cur, nueva) { const u = U[sess()?.uid]; if (!u || u.pass !== cur) throw { code: "auth/invalid-credential" }; u.pass = nueva; persist(); },
+    watchProfile(uid, cb) { const o = { uid, cb }; L.prof.push(o); setTimeout(() => cb(U[uid] ? strip(U[uid]) : null), 0); return off(L.prof, o); },
+    watchUsers(cb) { L.users.push(cb); setTimeout(() => cb(Object.values(U).map(strip)), 0); return off(L.users, cb); },
+    async updateUser(uid, patch) { Object.assign(U[uid], patch); persist(); }
   };
 }
 
 /* =====================================================================
    ESTADO Y UTILIDADES DE UI
    ===================================================================== */
-const S = { be: null, user: null, profile: null, calculos: [], termos: [], users: [], proyectos: [], unsubs: [], unsubProf: null,
-  wx: null, photos: [], check: {}, nivelAgua: "", lastCalcId: null, lastCalcKey: "", histTab: "calculos", accTab: "abierta" };
+const S = { be: null, user: null, profile: null, users: [], unsubs: [], unsubProf: null, wx: null, photos: [], check: {}, nivelAgua: "" };
 const isAdmin = () => S.profile?.role === "admin" && S.profile?.status === "aprobado";
-const isVisor = () => S.profile?.role === "visor";
-const ROLES = { admin: "Administrador", supervisor: "Supervisor", visor: "Visor (solo consulta)" };
-const myProjIds = () => isAdmin() ? S.proyectos.map(p => p.id) : (S.profile?.proyectos || []);
-const myProjects = () => S.proyectos.filter(p => myProjIds().includes(p.id)).sort((a, b) => (a.nombre || "").localeCompare(b.nombre || ""));
-const projName = (id) => S.proyectos.find(p => p.id === id)?.nombre || "";
-const lsGet = (k, d = "") => { try { return localStorage.getItem(k) ?? d; } catch { return d; } };
-const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
-
-/* --- Notificación por Gmail (abre la redacción de Gmail con el mensaje listo) --- */
+const ROLES = { admin: "Administrador", usuario: "Usuario" };
+const roleName = (r) => ROLES[r] || "Usuario";
 function gmailCompose(to, subject, body) {
   const u = "https://mail.google.com/mail/?view=cm&fs=1&tf=1" + (to ? "&to=" + encodeURIComponent(to) : "") + "&su=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
   window.open(u, "_blank", "noopener");
 }
-const projMails = (id) => (S.proyectos.find(p => p.id === id)?.correos || "").split(/[,;\s]+/).filter(Boolean).join(",");
-function calcMail(r) {
-  const L = LEVELS[r.nivelAplicado ?? r.nivel];
-  return [`[CalorFS] ${L.name.toUpperCase()} · IC ${fmt1(r.sol ? r.icSolC : r.icC)} °C · ${r.proyecto || ""} ${r.area ? "· " + r.area : ""}`.trim(),
-`Reporte de índice de calor – CalorFS
-Folio: ${folio("IC", r)}
-Fecha: ${fmtDate(r.ts)}
-Proyecto: ${r.proyecto || "—"}
-Área / Frente: ${r.area || "—"}   Ubicación: ${r.ubicacion || "—"}
-Actividad: ${r.actividad || "—"}   Trabajadores expuestos: ${r.expuestos ?? "—"}
 
-Temperatura: ${fmt1(r.tC)} °C   Humedad relativa: ${r.rh} %
-Índice de calor (sombra): ${fmt1(r.icC)} °C – ${LEVELS[r.nivel].name}
-Índice de calor bajo sol (+${SUN_ADD_C} °C): ${fmt1(r.icSolC)} °C – ${LEVELS[r.nivelSol].name}
-Trabajo bajo sol directo: ${r.sol ? "Sí" : "No"}
-
-NIVEL APLICADO: ${L.name.toUpperCase()}
-ACCIÓN INMEDIATA: ${L.accion}
-Medidas:
-${L.medidas.map(m => "• " + m).join("\n")}
-${r.notas ? "\nObservaciones: " + r.notas : ""}
-
-Elaborado por: ${r.autor}`];
-}
-function termoMail(t) {
-  const nc = TERMO_CHECK.filter(([k]) => t.checklist?.[k] === "no").map(([, x]) => "• " + x);
-  return [`[CalorFS] Termo ${t.resultado.toUpperCase()} · ${t.termoId || "s/ID"} · ${t.proyecto || ""} ${t.area ? "· " + t.area : ""}`.trim(),
-`Revisión de termo de agua – CalorFS
-Folio: ${folio("TER", t)}
-Fecha: ${fmtDate(t.ts)}
-Proyecto: ${t.proyecto || "—"}   Área: ${t.area || "—"}   Ubicación: ${t.ubicacion || "—"}
-Termo: ${t.termoId || "s/ID"}   Nivel de agua: ${t.nivelAgua}
-Resultado: ${t.resultado}
-${nc.length ? "\nNo conformidades:\n" + nc.join("\n") : ""}
-${t.observaciones ? "\nObservaciones: " + t.observaciones : ""}
-${t.accion ? `\nAcción correctiva (${t.accion.estado}): ${t.accion.descripcion}\nResponsable: ${t.accion.responsable || "—"}   Compromiso: ${t.accion.fechaCompromiso || "—"}${t.accion.estado === "cerrada" ? "\nCierre: " + fmtDate(t.accion.cierreTs) + " – " + t.accion.cierreNota : ""}` : ""}
-
-Elaborado por: ${t.autor}`];
-}
-function alertNotify(kind, rec) {
-  const [su, body] = kind === "calc" ? calcMail(rec) : termoMail(rec);
-  const L = kind === "calc" ? LEVELS[rec.nivelAplicado] : null;
-  modal(kind === "calc" ? "⚠️ Condición de riesgo alto" : "⚠️ Termo no conforme", `
-    <div class="result ${L && L.ink !== "#fff" ? "dark-ink" : ""}" style="background:${L ? L.color : "var(--red)"};padding:14px;margin-bottom:14px">
-      <div class="lvl" style="font-size:22px">${h(L ? L.name + " · " + fmt1(rec.sol ? rec.icSolC : rec.icC) + " °C" : "No conforme · Termo " + (rec.termoId || "s/ID"))}</div>
-      <div class="act">${h(L ? L.accion : "Se registraron no conformidades. Da seguimiento a la acción correctiva.")}</div></div>
-    <p class="small muted" style="margin-top:0">Notifica a los responsables del proyecto <b>${h(rec.proyecto || "—")}</b>. Destinatarios configurados: ${h(projMails(rec.proyectoId) || "ninguno (agrégalos en Admin › Proyectos)")}</p>
-    <div class="btns"><button class="btn sun" id="nGm">✉️ Notificar por Gmail</button><button class="btn ghost" id="nPdf">⬇︎ PDF</button></div>
-    <button class="btn ghost block" id="nShare" style="margin-top:10px">Compartir (WhatsApp, etc.)</button>`, (m, close) => {
-      $("#nGm", m).onclick = () => { gmailCompose(projMails(rec.proyectoId), su, body); close(); };
-      $("#nPdf", m).onclick = () => kind === "calc" ? pdfCalc(rec) : pdfTermo(rec);
-      $("#nShare", m).onclick = async () => { try { await navigator.share({ title: su, text: body }); } catch { navigator.clipboard?.writeText(body); toast("Texto copiado al portapapeles."); } };
-    });
-}
 
 let toastT;
 function toast(msg, action) {
@@ -882,21 +799,13 @@ const authErr = (e) => ({
   "auth/user-not-found": "No existe una cuenta con ese correo.", "auth/email-already-in-use": "Ese correo ya está registrado. Inicia sesión.",
   "auth/weak-password": "La contraseña debe tener al menos 6 caracteres.", "auth/invalid-email": "Correo no válido.",
   "auth/network-request-failed": "Sin conexión. Necesitas internet para iniciar sesión la primera vez.",
-  "auth/too-many-requests": "Demasiados intentos. Espera unos minutos.", "demo/reset": "En modo demostración no hay envío de correos."
+  "auth/too-many-requests": "Demasiados intentos. Espera unos minutos.",
+  "permission-denied": "Firebase rechazó la operación. Revisa que las reglas estén PUBLICADAS y que el correo de superEmail() en las reglas sea idéntico al de SUPER_ADMIN_EMAIL en index.html.",
+  "auth/requires-recent-login": "Por seguridad, cierra sesión, vuelve a entrar e intenta de nuevo.",
+  "auth/missing-password": "Escribe tu contraseña actual.", "demo/reset": "En modo demostración no hay envío de correos."
 }[e?.code] || (e?.message || "Ocurrió un error. Intenta de nuevo."));
 
 function show(scr) { ["loading", "auth", "pending", "app"].forEach(s => $("#scr-" + s).classList.toggle("hidden", s !== scr)); }
-function go(v) {
-  $$(".view").forEach(x => x.classList.toggle("on", x.id === "v-" + v));
-  $$("nav.bn button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
-  if (v === "panel") renderPanel();
-  window.scrollTo({ top: 0 });
-  if (v === "termos") sizeSig();
-}
-
-/* =====================================================================
-   AUTENTICACIÓN
-   ===================================================================== */
 function initAuthUI() {
   $$("#authSeg button").forEach(b => b.onclick = () => {
     $$("#authSeg button").forEach(x => x.classList.toggle("on", x === b));
@@ -927,21 +836,45 @@ function initAuthUI() {
   $("#btnLogout2").onclick = lo;
 }
 
+function go(v) {
+  $$(".view").forEach(x => x.classList.toggle("on", x.id === "v-" + v));
+  $$("nav.bn button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
+  window.scrollTo({ top: 0 });
+  if (v === "termos") sizeSig();
+}
+
+/* =====================================================================
+   AUTENTICACIÓN Y ACCESO
+   ===================================================================== */
 let profTimer;
 function onAuthChange(u) {
   const had = !!S.user; S.user = u; S.unsubProf?.(); S.unsubs.forEach(f => f()); S.unsubs = []; clearTimeout(profTimer);
-  if (!u) { S.profile = null; S.calculos = []; S.termos = []; S.users = []; if (had) { $('#authSeg button[data-a="login"]').click(); $$("#scr-auth form").forEach(f => f.reset()); } show("auth"); return; }
-  S.unsubProf = S.be.watchProfile(u.uid, p => onProfile(p));
+  if (!u) { S.profile = null; S.users = []; if (had) { $('#authSeg button[data-a="login"]').click(); $$("#scr-auth form").forEach(f => f.reset()); } show("auth"); return; }
+  S.autoTried = false;
+  S.unsubProf = S.be.watchProfile(u.uid, (p, meta) => onProfile(p, meta), e => profError(e));
 }
-function onProfile(p) {
+function profError(e) {
+  S.unsubs.forEach(f => f()); S.unsubs = []; S.profile = null;
+  $("#pendEmail").textContent = S.user?.email || "";
+  $("#pendTitle").textContent = "No se pudo cargar tu perfil";
+  $("#pendMsg").textContent = authErr(e) + " (" + (e.code || e.message) + ")";
+  show("pending");
+}
+function onProfile(p, meta) {
   const prev = S.profile; S.profile = p;
   if (!p) {
+    S.unsubs.forEach(f => f()); S.unsubs = [];
     $("#pendEmail").textContent = S.user.email; show("pending");
+    if (meta?.fromCache) { $("#pendTitle").textContent = "Conectando…"; $("#pendMsg").textContent = "Se necesita internet para validar tu cuenta la primera vez."; return; }
     $("#pendTitle").textContent = "Completando registro…"; $("#pendMsg").textContent = "Un momento.";
     clearTimeout(profTimer);
     profTimer = setTimeout(() => {
       if (S.profile) return;
-      if (S.user.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) { S.be.createProfile(S.user.uid, S.user.email, { nombre: "Administrador", empresa: "", puesto: "" }); return; }
+      if (S.user.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) {
+        if (S.autoTried) return; S.autoTried = true;
+        let prof = { nombre: "Administrador", empresa: "", puesto: "" }; try { prof = { ...prof, ...JSON.parse(lsGet("calorfs_reg", "{}")) }; } catch {}
+        S.be.createProfile(S.user.uid, S.user.email, prof).catch(profError); return;
+      }
       $("#pendTitle").textContent = "Perfil incompleto"; $("#pendMsg").textContent = "Completa tus datos para solicitar acceso.";
       $("#fComplete").classList.remove("hidden");
     }, 2500);
@@ -952,51 +885,237 @@ function onProfile(p) {
     $("#pendEmail").textContent = p.email;
     const rej = p.status === "rechazado" || p.status === "suspendido";
     $("#pendTitle").textContent = rej ? (p.status === "rechazado" ? "Solicitud rechazada" : "Cuenta suspendida") : "Cuenta en revisión";
-    $("#pendMsg").textContent = rej ? "Contacta al administrador de CalorFS." : "Un administrador debe autorizar tu acceso.";
+    $("#pendMsg").textContent = rej ? "Contacta al administrador de CalorFS." : "El administrador debe autorizar tu acceso.";
     S.unsubs.forEach(f => f()); S.unsubs = [];
     show("pending"); return;
   }
-  const accKey = (x) => x ? [x.status, x.role, (x.proyectos || []).join(",")].join("|") : "";
-  const roleChanged = accKey(prev) !== accKey(p);
-  renderProfile();
-  if (roleChanged) { startData(); applyRole(); }
+  const changed = !prev || prev.status !== p.status || prev.role !== p.role;
+  renderProfile(); prefillAuthor();
+  if (changed) {
+    S.unsubs.forEach(f => f()); S.unsubs = [];
+    $("#navAdmin").classList.toggle("hidden", !isAdmin());
+    if (isAdmin()) S.unsubs.push(S.be.watchUsers(l => { S.users = l.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)); renderAdmin(); }));
+    if (!prev) go("calc");
+  }
   show("app");
 }
-function applyRole() {
-  const v = isVisor();
-  $$('nav.bn button[data-v="calc"], nav.bn button[data-v="termos"]').forEach(b => b.classList.toggle("hidden", v));
-  $("#navAdmin").classList.toggle("hidden", !isAdmin());
-  go(v ? "panel" : "calc");
+function prefillAuthor() {
+  if (!$("#cUbi").value && S.profile?.empresa) $("#cUbi").value = S.profile.empresa;
+  if (!$("#tUbi").value && S.profile?.empresa) $("#tUbi").value = S.profile.empresa;
 }
-// Escucha en tiempo real: el admin ve todo; supervisores y visores ven sus registros
-// propios + todos los registros de los proyectos que tienen asignados.
-function watchMerged(col, onList) {
-  const parts = {}; const push = (k) => (l) => { parts[k] = l; const m = new Map(); Object.values(parts).flat().forEach(r => m.set(r.id, r)); onList([...m.values()].sort((a, b) => b.ts - a.ts)); };
-  if (isAdmin()) return [S.be.watchCol(col, { all: true }, push("all"))];
-  const subs = [S.be.watchCol(col, { uid: S.user.uid }, push("own"))];
-  const ids = S.profile.proyectos || [];
-  for (let i = 0; i < ids.length; i += 30) subs.push(S.be.watchCol(col, { proyectos: ids.slice(i, i + 30) }, push("p" + i)));
-  return subs;
+const autor = () => S.profile?.nombre || S.user?.email || "";
+
+/* =====================================================================
+   CALCULADORA (el reporte se genera al momento, no se guarda)
+   ===================================================================== */
+function initCalc() {
+  const link = (num, rg) => {
+    num.addEventListener("input", () => { if (isFinite(parseFloat(num.value))) rg.value = num.value; S.wx = null; $("#wxSrc").textContent = "Captura manual"; renderCalc(); });
+    rg.addEventListener("input", () => { num.value = rg.value; S.wx = null; $("#wxSrc").textContent = "Captura manual"; renderCalc(); });
+  };
+  link($("#inT"), $("#rgT")); link($("#inH"), $("#rgH"));
+  $("#chkSun").onchange = renderCalc;
+  $("#btnWx").onclick = getWeather;
+  $("#btnPdfCalc").onclick = async () => {
+    const c = calcState(); if (!c) return toast("Revisa la temperatura y la humedad.");
+    const btn = $("#btnPdfCalc"); btn.disabled = true;
+    try { await pdfCalc(calcRecord(c)); } finally { btn.disabled = false; }
+  };
+  renderCalc();
 }
-function startData() {
-  S.unsubs.forEach(f => f()); S.unsubs = [];
-  S.unsubs.push(S.be.watchProjects(l => { S.proyectos = l; renderProjSelects(); renderHist(); renderPanel(); isAdmin() && renderAdmin(); }));
-  S.unsubs.push(...watchMerged("calculos", l => { S.calculos = l; renderHist(); renderPanel(); }));
-  S.unsubs.push(...watchMerged("termos", l => { S.termos = l; renderHist(); renderAcc(); renderPanel(); }));
-  if (isAdmin()) S.unsubs.push(S.be.watchUsers(l => { S.users = l.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)); renderAdmin(); }));
-}
-function renderProjSelects() {
-  const ps = myProjects().filter(p => p.activo !== false);
-  const opts = ps.length ? ps.map(p => `<option value="${p.id}">${h(p.nombre)}${p.cliente ? " · " + h(p.cliente) : ""}</option>`).join("")
-                         : `<option value="">Sin proyecto asignado</option>`;
-  $$(".proj-sel").forEach(sel => { const cur = sel.value || lsGet("calorfs_proj"); sel.innerHTML = opts; if (ps.some(p => p.id === cur)) sel.value = cur; });
-  const all = myProjects();
-  ["#hProj", "#dProj"].forEach(id => { const sel = $(id), cur = sel.value; sel.innerHTML = `<option value="">${id === "#dProj" ? "Todos mis proyectos" : "Todos los proyectos"}</option>` + all.map(p => `<option value="${p.id}">${h(p.nombre)}</option>`).join(""); sel.value = all.some(p => p.id === cur) ? cur : ""; });
+function calcRecord(c) {
+  return {
+    autor: autor(), empresa: S.profile?.empresa || "", puesto: S.profile?.puesto || "",
+    ts: Date.now(), tC: +fmt1(c.tC), rh: Math.round(c.rh), icC: +fmt1(c.ic), icSolC: +fmt1(c.icSol), sol: c.sun,
+    nivel: c.L.k, nivelSol: c.LS.k, nivelAplicado: c.Lact.k,
+    area: $("#cArea").value.trim(), ubicacion: $("#cUbi").value.trim(), actividad: $("#cAct").value.trim(),
+    expuestos: $("#cExp").value ? +$("#cExp").value : null, notas: $("#cNotas").value.trim(),
+    fuente: S.wx ? S.wx.fuente : "Manual", lat: S.wx?.lat ?? null, lng: S.wx?.lng ?? null
+  };
 }
 
 /* =====================================================================
-   CALCULADORA
+   TERMOS (el reporte se genera al momento, no se guarda)
    ===================================================================== */
+function initTermos() {
+  $("#chkList").addEventListener("click", e => {
+    const b = e.target.closest("button[data-v]"); if (!b) return;
+    const row = b.closest(".chk"); $$("button", row).forEach(x => x.classList.toggle("on", x === b));
+    S.check[row.dataset.k] = b.dataset.v; autoAcc();
+  });
+  $("#lvlPick").addEventListener("click", e => {
+    const b = e.target.closest("button[data-n]"); if (!b) return;
+    $$("#lvlPick button").forEach(x => x.classList.toggle("on", x === b)); S.nivelAgua = b.dataset.n; autoAcc();
+  });
+  $("#tNeedAcc").onchange = () => $("#accFields").classList.toggle("hidden", !$("#tNeedAcc").checked);
+  renderPhotos();
+  initSig();
+  $("#btnPdfTermo").onclick = pdfTermoNow;
+  $("#btnClearTermo").onclick = async () => { if (await confirmDlg("¿Borrar los datos capturados para iniciar una nueva revisión?", "Limpiar")) { resetTermo(); window.scrollTo({ top: 0 }); } };
+}
+function needsAcc() { return Object.values(S.check).includes("no") || ["1/4", "Vacío"].includes(S.nivelAgua); }
+function autoAcc() {
+  const need = needsAcc();
+  $("#accReq").textContent = need ? "Requerida" : "Opcional";
+  $("#accReq").className = "tag " + (need ? "open" : "");
+  if (need && !$("#tNeedAcc").checked) { $("#tNeedAcc").checked = true; $("#accFields").classList.remove("hidden"); }
+}
+function resetTermo() {
+  ["#tId", "#tCap", "#tArea", "#tObs", "#tAccDesc", "#tAccResp", "#tAccFecha", "#tFirmante"].forEach(s => $(s).value = "");
+  S.check = {}; S.nivelAgua = ""; S.photos = [];
+  $$("#chkList button, #lvlPick button").forEach(b => b.classList.remove("on"));
+  $("#tNeedAcc").checked = false; $("#accFields").classList.add("hidden"); autoAcc();
+  renderPhotos(); clearSig();
+}
+async function pdfTermoNow() {
+  const faltan = TERMO_CHECK.filter(([k]) => !S.check[k]).length;
+  if (faltan) return toast(`Faltan ${faltan} punto(s) de la lista de verificación.`);
+  if (!S.nivelAgua) return toast("Selecciona el nivel de agua.");
+  if (!$("#tArea").value.trim() && !$("#tUbi").value.trim()) return toast("Indica el área o la ubicación del termo.");
+  const req = $("#tNeedAcc").checked;
+  if (req && !$("#tAccDesc").value.trim()) return toast("Describe la acción correctiva.");
+  if (!sig.dirty) return toast("Falta la firma del responsable.");
+  if (!$("#tFirmante").value.trim()) return toast("Escribe el nombre de quien firma.");
+  const noConf = TERMO_CHECK.filter(([k]) => S.check[k] === "no").length;
+  const rec = {
+    autor: autor(), empresa: S.profile?.empresa || "", ts: Date.now(),
+    termoId: $("#tId").value.trim(), capacidad: $("#tCap").value ? +$("#tCap").value : null,
+    area: $("#tArea").value.trim(), ubicacion: $("#tUbi").value.trim(),
+    checklist: { ...S.check }, nivelAgua: S.nivelAgua, observaciones: $("#tObs").value.trim(), fotos: [...S.photos],
+    accion: req ? { descripcion: $("#tAccDesc").value.trim(), responsable: $("#tAccResp").value.trim(), fechaCompromiso: $("#tAccFecha").value || "" } : null,
+    firma: sigData(), firmante: $("#tFirmante").value.trim(),
+    resultado: noConf || ["1/4", "Vacío"].includes(S.nivelAgua) ? "No conforme" : "Conforme"
+  };
+  const btn = $("#btnPdfTermo"); btn.disabled = true;
+  try { await pdfTermo(rec); toast("Reporte generado ✔", { label: "Nueva revisión", fn: () => { resetTermo(); window.scrollTo({ top: 0 }); } }); }
+  finally { btn.disabled = false; }
+}
+
+/* =====================================================================
+   ADMINISTRACIÓN: autorizar usuarios y designar administradores
+   ===================================================================== */
+const isSuperU = (u) => (u.email || "").toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase();
+const iAmSuper = () => (S.profile?.email || "").toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase();
+function renderAdmin() {
+  if (!isAdmin()) return;
+  const pend = S.users.filter(u => u.status === "pendiente");
+  const n = pend.length; $("#bdgAdm").textContent = n; $("#bdgAdm").classList.toggle("hidden", !n);
+  $("#aStats").innerHTML = `<div><b>${S.users.filter(u => u.status === "aprobado").length}</b><span>Activos</span></div><div><b>${n}</b><span>Pendientes</span></div><div><b>${S.users.filter(u => u.role === "admin").length}</b><span>Admins</span></div>`;
+  $("#aPend").innerHTML = n ? pend.map(u => userRow(u, true)).join("") : `<p class="muted small" style="margin:0">No hay solicitudes por autorizar.</p>`;
+  const q = $("#aSearch").value.trim().toLowerCase();
+  const rest = S.users.filter(u => u.status !== "pendiente" && (!q || ((u.nombre || "") + " " + u.email).toLowerCase().includes(q)));
+  $("#aUsers").innerHTML = rest.map(u => userRow(u, false)).join("") || `<p class="muted small">Sin resultados.</p>`;
+}
+function userRow(u, pending) {
+  const me = u.id === S.user.uid, sup = isSuperU(u), locked = me || (sup && !iAmSuper());
+  const st = { aprobado: ["closed", "Activo"], pendiente: ["pend", "Pendiente"], rechazado: ["open", "Rechazado"], suspendido: ["open", "Suspendido"] }[u.status] || ["", u.status];
+  let acts = "";
+  if (pending) acts = `<button class="btn ok sm" data-act="aprobar" data-id="${u.id}">✔ Autorizar</button><button class="btn danger sm" data-act="rechazar" data-id="${u.id}">Rechazar</button>`;
+  else if (!locked) {
+    if (u.status === "aprobado") acts += u.role === "admin"
+      ? `<button class="btn ghost sm" data-act="quitarAdmin" data-id="${u.id}">Quitar admin</button>`
+      : `<button class="btn ghost sm" data-act="hacerAdmin" data-id="${u.id}">★ Hacer administrador</button>`;
+    acts += u.status === "aprobado" ? `<button class="btn danger sm" data-act="suspender" data-id="${u.id}">Suspender</button>` : `<button class="btn ok sm" data-act="reactivar" data-id="${u.id}">Reactivar</button>`;
+  }
+  return `<div class="user"><div class="av">${h(initials(u.nombre || u.email))}</div><div class="bd">
+    <b>${h(u.nombre || "Sin nombre")} ${me ? '<span class="tag">Tú</span>' : ""}</b>
+    <span>${h(u.email)}</span><span>${h([u.puesto, u.empresa].filter(Boolean).join(" · ") || "—")} · ${fmtDay(u.createdAt)}</span>
+    <div class="acts"><span class="tag ${st[0]}">${st[1]}</span><span class="tag ${u.role === "admin" ? "adm" : ""}">${sup ? "Admin principal" : h(roleName(u.role))}</span></div>
+    ${acts ? `<div class="acts">${acts}</div>` : ""}</div></div>`;
+}
+function initAdmin() {
+  $("#aSearch").addEventListener("input", renderAdmin);
+  $("#v-admin").addEventListener("click", async (e) => {
+    const b = e.target.closest("[data-act]"); if (!b) return;
+    const u = S.users.find(x => x.id === b.dataset.id); if (!u) return;
+    const by = autor(), who = u.nombre || u.email;
+    const ops = {
+      aprobar: [`¿Autorizar el acceso de ${who}?`, { status: "aprobado", approvedBy: by, approvedAt: Date.now() }, "Usuario autorizado ✔", false],
+      rechazar: [`¿Rechazar la solicitud de ${who}?`, { status: "rechazado", reviewedBy: by, reviewedAt: Date.now() }, "Solicitud rechazada", true],
+      suspender: [`¿Suspender el acceso de ${who}?`, { status: "suspendido", reviewedBy: by, reviewedAt: Date.now() }, "Usuario suspendido", true],
+      reactivar: [`¿Reactivar el acceso de ${who}?`, { status: "aprobado", reviewedBy: by, reviewedAt: Date.now() }, "Usuario reactivado", false],
+      hacerAdmin: [`¿Designar a ${who} como administrador? Podrá autorizar usuarios y designar otros administradores.`, { role: "admin" }, "Ahora es administrador", false],
+      quitarAdmin: [`¿Quitar permisos de administrador a ${who}?`, { role: "usuario" }, "Permisos retirados", true]
+    }[b.dataset.act];
+    if (!ops || !(await confirmDlg(ops[0], "Confirmar", ops[3]))) return;
+    try {
+      await S.be.updateUser(u.id, ops[1]);
+      if (b.dataset.act === "aprobar") toast(ops[2], { label: "Avisar por Gmail", fn: () => gmailCompose(u.email, "Tu acceso a CalorFS fue autorizado",
+        `Hola ${u.nombre || ""}:\n\nTu cuenta de CalorFS (herramienta gratuita de ${BRAND}) ya está activa. Ingresa en:\n${location.origin + location.pathname}\n\nCalorFS es una herramienta gratuita para calcular el índice de calor y documentar la revisión de termos de agua.\n\nSaludos,\n${by}`) });
+      else toast(ops[2]);
+    } catch (er) { toast("Error: " + (er.code || er.message)); }
+  });
+}
+
+/* =====================================================================
+   PERFIL, CONTRASEÑA, REDES Y PWA
+   ===================================================================== */
+function renderProfile() {
+  const p = S.profile;
+  $("#hdrUser").textContent = `por ${BRAND} · ${p.nombre || p.email}${p.role === "admin" ? " (Admin)" : ""}`;
+  $("#hdrAv").textContent = initials(p.nombre || p.email);
+  $("#pAv").textContent = initials(p.nombre || p.email); $("#pName").textContent = p.nombre || "Sin nombre"; $("#pEmail").textContent = p.email;
+  $("#pRole").innerHTML = `<span class="tag ${p.role === "admin" ? "adm" : "closed"}">${h(isSuperU(p) ? "Administrador principal" : roleName(p.role))}</span>`;
+  if (document.activeElement?.closest?.("#v-perfil") == null) { $("#pfNombre").value = p.nombre || ""; $("#pfEmpresa").value = p.empresa || ""; $("#pfPuesto").value = p.puesto || ""; }
+  $("#pVer").textContent = APP_VERSION; $("#pMode").textContent = DEMO ? "Demostración (local)" : "Cuentas en Firebase · reportes solo en tu dispositivo";
+}
+function renderSocial() {
+  const list = activeSocial();
+  const html = list.map(s => `<a href="${h(s.url)}" target="_blank" rel="noopener" style="--sc:${s.color}"><svg viewBox="0 0 24 24"><path d="M10.6 13.4a1 1 0 0 1 0-1.4l3.4-3.4a3 3 0 0 1 4.2 4.2l-2 2a1 1 0 1 1-1.4-1.4l2-2a1 1 0 0 0-1.4-1.4L12 13.4a1 1 0 0 1-1.4 0zm2.8-2.8a1 1 0 0 1 0 1.4L10 15.4a3 3 0 0 1-4.2-4.2l2-2a1 1 0 0 1 1.4 1.4l-2 2a1 1 0 0 0 1.4 1.4L12 10.6a1 1 0 0 1 1.4 0z"/></svg><span>${h(s.red)}</span></a>`).join("");
+  $$(".social").forEach(el => el.innerHTML = html);
+  $$(".social-card").forEach(el => el.classList.toggle("hidden", !list.length));
+}
+function initProfile() {
+  $("#btnSaveProf").onclick = async () => {
+    try { await S.be.updateUser(S.user.uid, { nombre: $("#pfNombre").value.trim(), empresa: $("#pfEmpresa").value.trim(), puesto: $("#pfPuesto").value.trim() }); toast("Datos actualizados ✔"); }
+    catch (e) { toast("Error: " + (e.code || e.message)); }
+  };
+  $("#fPass").onsubmit = async (e) => {
+    e.preventDefault();
+    const f = e.target, d = Object.fromEntries(new FormData(f)), err = $(".err", f), btn = $("button.btn", f);
+    err.classList.add("hidden");
+    const fail = (m) => { err.textContent = m; err.classList.remove("hidden"); };
+    if (d.n1.length < 6) return fail("La nueva contraseña debe tener al menos 6 caracteres.");
+    if (d.n1 !== d.n2) return fail("La confirmación no coincide con la nueva contraseña.");
+    if (d.n1 === d.cur) return fail("La nueva contraseña debe ser diferente a la actual.");
+    btn.disabled = true;
+    try { await S.be.changePassword(d.cur, d.n1); f.reset(); toast("Contraseña actualizada ✔"); }
+    catch (er) { fail(er?.code === "auth/invalid-credential" || er?.code === "auth/wrong-password" ? "La contraseña actual no es correcta." : authErr(er)); }
+    finally { btn.disabled = false; }
+  };
+  let deferred;
+  window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferred = e; $("#btnInstall").classList.remove("hidden"); });
+  $("#btnInstall").onclick = async () => { if (!deferred) return; deferred.prompt(); await deferred.userChoice; deferred = null; $("#btnInstall").classList.add("hidden"); };
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.navigator.standalone;
+  $("#iosHint").classList.toggle("hidden", !ios);
+  renderSocial();
+  $$(".btn-share-app").forEach(b => b.onclick = shareApp);
+}
+async function shareApp() {
+  const url = location.origin + location.pathname;
+  const text = `CalorFS: calcula el índice de calor (NOAA), conoce el nivel de riesgo y genera tu reporte PDF en segundos. Herramienta gratuita de ${BRAND} para SST.`;
+  try { if (navigator.share) { await navigator.share({ title: "CalorFS", text, url }); return; } } catch (e) { if (e.name === "AbortError") return; }
+  try { await navigator.clipboard.writeText(text + " " + url); toast("Enlace copiado: pégalo en tus redes o WhatsApp."); } catch { toast(url); }
+}
+function initNet() {
+  const upd = () => { const on = navigator.onLine; $("#net").classList.toggle("off", !on); $("#net span").textContent = on ? "En línea" : "Sin conexión"; };
+  window.addEventListener("online", upd);
+  window.addEventListener("offline", () => { upd(); toast("Sin conexión: puedes seguir calculando y generando reportes."); });
+  upd();
+}
+function initSW() {
+  if (!("serviceWorker" in navigator) || location.protocol === "file:") { $("#pSw").textContent = "No disponible en este entorno"; return; }
+  navigator.serviceWorker.register("sw.js").then(reg => {
+    $("#pSw").textContent = "Activo ✔";
+    const ask = (w) => toast("Nueva versión de CalorFS disponible", { label: "Actualizar", fn: () => w.postMessage("SKIP_WAITING") });
+    if (reg.waiting) ask(reg.waiting);
+    reg.addEventListener("updatefound", () => { const w = reg.installing; w.addEventListener("statechange", () => { if (w.state === "installed" && navigator.serviceWorker.controller) ask(w); }); });
+  }).catch(() => $("#pSw").textContent = "No se pudo activar");
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => { if (!reloaded) { reloaded = true; location.reload(); } });
+}
+
+
 function calcState() {
   const tC = parseFloat($("#inT").value), rh = parseFloat($("#inH").value);
   if (!isFinite(tC) || !isFinite(rh) || rh <= 0 || rh > 100) return null;
@@ -1036,7 +1155,6 @@ function buildStatic() {
   const cuts = [20, 26.7, 32.2, 39.4, 51.7, 60];
   $("#scaleBar").innerHTML = LEVELS.map((l, i) => `<i style="width:${(cuts[i + 1] - cuts[i]) / 40 * 100}%;background:${l.color}"></i>`).join("");
   $("#lvlList").innerHTML = LEVELS.map(l => `<div><i style="background:${l.color}"></i><b>${l.name}</b><span class="muted small">${l.rango}</span></div>`).join("");
-  $("#hLevel").innerHTML = `<option value="">Todos los niveles</option>` + LEVELS.map(l => `<option value="${l.k}">${l.name}</option>`).join("");
   // Tabla de referencia
   const Ts = [26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46], Hs = [20, 30, 40, 50, 60, 70, 80, 90, 100];
   let t = `<tr><th>°C \\ HR</th>${Hs.map(x => `<th>${x}%</th>`).join("")}</tr>`;
@@ -1052,23 +1170,6 @@ function markTable(T, H) {
   $$("#hiTable td.cur").forEach(td => td.classList.remove("cur"));
   const rt = Math.round(T / 2) * 2, rh = Math.round(H / 10) * 10;
   const td = $(`#hiTable td[data-t="${rt}"][data-h="${rh}"]`); td && td.classList.add("cur");
-}
-function initCalc() {
-  const link = (num, rg) => {
-    num.addEventListener("input", () => { if (isFinite(parseFloat(num.value))) rg.value = num.value; S.wx = null; $("#wxSrc").textContent = "Captura manual"; renderCalc(); });
-    rg.addEventListener("input", () => { num.value = rg.value; S.wx = null; $("#wxSrc").textContent = "Captura manual"; renderCalc(); });
-  };
-  link($("#inT"), $("#rgT")); link($("#inH"), $("#rgH"));
-  $("#chkSun").onchange = renderCalc;
-  $("#btnWx").onclick = getWeather;
-  $("#btnSaveCalc").onclick = saveCalc;
-  $("#btnPdfCalc").onclick = async () => {
-    const c = calcState(); if (!c) return toast("Revisa la temperatura y la humedad.");
-    const key = calcKey();
-    const rec = (S.lastCalcId && S.lastCalcKey === key && S.calculos.find(r => r.id === S.lastCalcId)) || { ...calcRecord(c), id: "BORRADOR" };
-    pdfCalc(rec);
-  };
-  renderCalc();
 }
 async function getWeather() {
   if (!navigator.onLine) return toast("Sin conexión: captura los datos de tu termohigrómetro.");
@@ -1087,34 +1188,6 @@ async function getWeather() {
     finally { btn.disabled = false; }
   }, () => { btn.disabled = false; toast("Permiso de ubicación denegado."); }, { enableHighAccuracy: true, timeout: 12000 });
 }
-const calcKey = () => [$("#inT").value, $("#inH").value, $("#chkSun").checked, $("#cArea").value, $("#cUbi").value, $("#cAct").value, $("#cExp").value, $("#cNotas").value].join("|");
-function projFields(sel) { const id = $(sel).value || ""; if (id) lsSet("calorfs_proj", id); return { proyectoId: id || null, proyecto: projName(id) }; }
-function calcRecord(c) {
-  return { ...projFields("#cProj"),
-    uid: S.user.uid, autor: S.profile.nombre || S.user.email, email: S.profile.email || S.user.email, empresa: S.profile.empresa || "",
-    ts: Date.now(), tC: +fmt1(c.tC), rh: Math.round(c.rh), icC: +fmt1(c.ic), icSolC: +fmt1(c.icSol), sol: c.sun,
-    nivel: c.L.k, nivelSol: c.LS.k, nivelAplicado: c.Lact.k,
-    area: $("#cArea").value.trim(), ubicacion: $("#cUbi").value.trim(), actividad: $("#cAct").value.trim(),
-    expuestos: $("#cExp").value ? +$("#cExp").value : null, notas: $("#cNotas").value.trim(),
-    fuente: S.wx ? S.wx.fuente : "Manual", lat: S.wx?.lat ?? null, lng: S.wx?.lng ?? null
-  };
-}
-function saveCalc() {
-  const c = calcState(); if (!c) return toast("Revisa la temperatura y la humedad.");
-  if (myProjects().length && !$("#cProj").value) return toast("Selecciona el proyecto.");
-  const rec = calcRecord(c);
-  try {
-    const { id, done } = S.be.save("calculos", rec);
-    S.lastCalcId = id; S.lastCalcKey = calcKey();
-    done.catch(e => toast("Error al sincronizar: " + (e.code || e.message)));
-    if (rec.nivelAplicado >= 3) alertNotify("calc", { ...rec, id });
-    else toast(navigator.onLine ? "Registro guardado ✔" : "Guardado sin conexión: se sincronizará al volver la señal.", { label: "PDF", fn: () => pdfCalc({ ...rec, id }) });
-  } catch (e) { toast("No se pudo guardar: " + e.message); }
-}
-
-/* =====================================================================
-   TERMOS
-   ===================================================================== */
 const TERMO_CHECK = [
   ["limpieza", "Termo limpio por dentro y por fuera"],
   ["tapa", "Tapa y llave/despachador sin fugas ni daños"],
@@ -1127,35 +1200,6 @@ const TERMO_CHECK = [
 ];
 const NIVELES = ["Lleno", "3/4", "1/2", "1/4", "Vacío"];
 
-function initTermos() {
-  $$("#segTermo button").forEach(b => b.onclick = () => {
-    $$("#segTermo button").forEach(x => x.classList.toggle("on", x === b));
-    $("#t-nuevo").classList.toggle("hidden", b.dataset.t !== "nuevo");
-    $("#t-acciones").classList.toggle("hidden", b.dataset.t !== "acciones");
-    if (b.dataset.t === "nuevo") sizeSig();
-  });
-  $$("#segAcc button").forEach(b => b.onclick = () => { $$("#segAcc button").forEach(x => x.classList.toggle("on", x === b)); S.accTab = b.dataset.s; renderAcc(); });
-  $("#chkList").addEventListener("click", e => {
-    const b = e.target.closest("button[data-v]"); if (!b) return;
-    const row = b.closest(".chk"); $$("button", row).forEach(x => x.classList.toggle("on", x === b));
-    S.check[row.dataset.k] = b.dataset.v; autoAcc();
-  });
-  $("#lvlPick").addEventListener("click", e => {
-    const b = e.target.closest("button[data-n]"); if (!b) return;
-    $$("#lvlPick button").forEach(x => x.classList.toggle("on", x === b)); S.nivelAgua = b.dataset.n; autoAcc();
-  });
-  $("#tNeedAcc").onchange = () => $("#accFields").classList.toggle("hidden", !$("#tNeedAcc").checked);
-  renderPhotos();
-  initSig();
-  $("#btnSaveTermo").onclick = saveTermo;
-}
-function needsAcc() { return Object.values(S.check).includes("no") || ["1/4", "Vacío"].includes(S.nivelAgua); }
-function autoAcc() {
-  const need = needsAcc();
-  $("#accReq").textContent = need ? "Requerida" : "Opcional";
-  $("#accReq").className = "tag " + (need ? "open" : "");
-  if (need && !$("#tNeedAcc").checked) { $("#tNeedAcc").checked = true; $("#accFields").classList.remove("hidden"); }
-}
 function renderPhotos() {
   const el = $("#tPhotos");
   el.innerHTML = S.photos.map((p, i) => `<div class="ph"><img src="${p}" alt="Foto ${i + 1}"><button data-i="${i}" aria-label="Quitar">✕</button></div>`).join("")
@@ -1215,416 +1259,11 @@ function sigData() {
   const x = o.getContext("2d"); x.drawImage(c, 0, 0, o.width, o.height);
   return o.toDataURL("image/png");
 }
-
-function resetTermo() {
-  ["#tId", "#tCap", "#tObs", "#tAccDesc", "#tAccResp", "#tAccFecha", "#tFirmante"].forEach(s => $(s).value = "");
-  S.check = {}; S.nivelAgua = ""; S.photos = [];
-  $$("#chkList button, #lvlPick button").forEach(b => b.classList.remove("on"));
-  $("#tNeedAcc").checked = false; $("#accFields").classList.add("hidden"); autoAcc();
-  renderPhotos(); clearSig();
-}
-function saveTermo() {
-  const faltan = TERMO_CHECK.filter(([k]) => !S.check[k]).length;
-  if (faltan) return toast(`Faltan ${faltan} punto(s) de la lista de verificación.`);
-  if (!S.nivelAgua) return toast("Selecciona el nivel de agua.");
-  if (myProjects().length && !$("#tProj").value) return toast("Selecciona el proyecto.");
-  if (!$("#tArea").value.trim() && !$("#tUbi").value.trim()) return toast("Indica el área o la ubicación del termo.");
-  const req = $("#tNeedAcc").checked;
-  if (req && !$("#tAccDesc").value.trim()) return toast("Describe la acción correctiva.");
-  if (!sig.dirty) return toast("Falta la firma del responsable.");
-  if (!$("#tFirmante").value.trim()) return toast("Escribe el nombre de quien firma.");
-  const noConf = TERMO_CHECK.filter(([k]) => S.check[k] === "no").map(([, t]) => t);
-  const rec = { ...projFields("#tProj"),
-    uid: S.user.uid, autor: S.profile.nombre || S.user.email, email: S.profile.email || S.user.email, empresa: S.profile.empresa || "",
-    ts: Date.now(), termoId: $("#tId").value.trim(), capacidad: $("#tCap").value ? +$("#tCap").value : null,
-    area: $("#tArea").value.trim(), ubicacion: $("#tUbi").value.trim(),
-    checklist: { ...S.check }, noConformidades: noConf.length, nivelAgua: S.nivelAgua,
-    observaciones: $("#tObs").value.trim(), fotos: [...S.photos],
-    accion: req ? { descripcion: $("#tAccDesc").value.trim(), responsable: $("#tAccResp").value.trim(), fechaCompromiso: $("#tAccFecha").value || "", estado: "abierta" } : null,
-    firma: sigData(), firmante: $("#tFirmante").value.trim(),
-    resultado: noConf.length || ["1/4", "Vacío"].includes(S.nivelAgua) ? "No conforme" : "Conforme"
-  };
-  const size = JSON.stringify(rec).length;
-  if (size > 950000) return toast("El registro es demasiado pesado. Quita una foto e intenta de nuevo.");
-  try {
-    const { id, done } = S.be.save("termos", rec);
-    done.catch(e => toast("Error al sincronizar: " + (e.code || e.message)));
-    if (rec.resultado !== "Conforme") alertNotify("termo", { ...rec, id });
-    else toast(navigator.onLine ? "Revisión guardada ✔" : "Guardada sin conexión: se sincronizará después.", { label: "PDF", fn: () => pdfTermo({ ...rec, id }) });
-    resetTermo(); window.scrollTo({ top: 0 });
-  } catch (e) { toast("No se pudo guardar: " + e.message); }
-}
-
-function accItems() { return S.termos.filter(t => t.accion); }
-function renderAcc() {
-  const all = accItems(), open = all.filter(t => t.accion.estado !== "cerrada");
-  const n = open.length;
-  [$("#bdgAcc"), $("#bdgNavAcc")].forEach(b => { b.textContent = n; b.classList.toggle("hidden", !n); });
-  const list = all.filter(t => (t.accion.estado === "cerrada") === (S.accTab === "cerrada"));
-  const today = new Date().toISOString().slice(0, 10);
-  $("#accList").innerHTML = list.length ? list.map(t => {
-    const a = t.accion, late = a.estado !== "cerrada" && a.fechaCompromiso && a.fechaCompromiso < today;
-    return `<div class="item" data-id="${t.id}" style="--lc:${a.estado === "cerrada" ? "var(--ok)" : late ? "var(--red)" : "var(--org)"}">
-      ${t.fotos?.[0] ? `<img class="thumb" src="${t.fotos[0]}" alt="">` : ""}
-      <div class="bd"><b>${h(a.descripcion)}</b><span>Termo ${h(t.termoId || "s/ID")} · ${h(t.area || t.ubicacion)}</span>
-      <span>Resp.: ${h(a.responsable || "—")} · Compromiso: ${h(a.fechaCompromiso || "—")}${t.proyecto ? " · " + h(t.proyecto) : ""}</span></div>
-      <span class="tag ${a.estado === "cerrada" ? "closed" : "open"}">${a.estado === "cerrada" ? "Cerrada" : late ? "Vencida" : "Abierta"}</span></div>`;
-  }).join("") : emptyBox(S.accTab === "cerrada" ? "Aún no hay acciones cerradas." : "Sin acciones correctivas abiertas. ¡Bien!");
-  $$("#accList .item").forEach(el => el.onclick = () => openTermo(S.termos.find(t => t.id === el.dataset.id)));
-}
-function closeAccion(t) {
-  let foto = "";
-  modal("Cerrar acción correctiva", `
-    <p class="small muted" style="margin-top:0">${h(t.accion.descripcion)}</p>
-    <label class="f">¿Qué se hizo? (evidencia de cierre)</label><textarea class="in" id="ccNota" placeholder="Se lavó y desinfectó el termo, se repusieron vasos…"></textarea>
-    <label class="f">Foto de evidencia</label>
-    <div class="photos" id="ccPh"><label class="add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>Foto<input type="file" accept="image/*" capture="environment" hidden></label></div>
-    <button class="btn ok block" id="ccOk" style="margin-top:14px">Cerrar acción</button>`, (m, close) => {
-    $("#ccPh input", m).onchange = async (e) => {
-      const f = e.target.files[0]; if (!f) return; foto = await compressImg(f, 900, 0.58);
-      $("#ccPh", m).innerHTML = `<div class="ph"><img src="${foto}" alt=""></div>`;
-    };
-    $("#ccOk", m).onclick = () => {
-      const nota = $("#ccNota", m).value.trim(); if (!nota) return toast("Describe la evidencia de cierre.");
-      const accion = { ...t.accion, estado: "cerrada", cierreNota: nota, cierreFoto: foto, cierreTs: Date.now(), cerradoPor: S.profile.nombre || S.user.email };
-      S.be.update("termos", t.id, { accion }).catch(e => toast("Error: " + (e.code || e.message)));
-      close(); $$(".modal").forEach(x => x.remove()); toast("Acción correctiva cerrada ✔");
-    };
-  });
-}
-
-/* =====================================================================
-   HISTORIAL
-   ===================================================================== */
-const emptyBox = (msg) => `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 21V9"/></svg>${h(msg)}</div>`;
-function initHist() {
-  $$("#segHist button").forEach(b => b.onclick = () => { $$("#segHist button").forEach(x => x.classList.toggle("on", x === b)); S.histTab = b.dataset.h; $("#hLevel").classList.toggle("hidden", S.histTab !== "calculos"); renderHist(); });
-  ["#hSearch", "#hLevel", "#hUser", "#hProj"].forEach(s => $(s).addEventListener("input", renderHist));
-  $("#btnCsv").onclick = exportCsv;
-}
-function renderUserFilter() {
-  const sel = $("#hUser"), cur = sel.value, m = new Map();
-  [...S.calculos, ...S.termos].forEach(r => m.set(r.uid, r.autor));
-  sel.innerHTML = `<option value="">Todos los usuarios</option>` + [...m].sort((a, b) => String(a[1]).localeCompare(String(b[1]))).map(([id, n]) => `<option value="${id}">${h(n)}</option>`).join("");
-  sel.value = m.has(cur) ? cur : "";
-}
-function filtered() {
-  const q = $("#hSearch").value.trim().toLowerCase(), lv = $("#hLevel").value, us = $("#hUser").value, pj = $("#hProj").value;
-  const src = S.histTab === "calculos" ? S.calculos : S.termos;
-  return src.filter(r => (!us || r.uid === us) && (!pj || r.proyectoId === pj)
-    && (S.histTab !== "calculos" || lv === "" || String(r.nivelAplicado ?? r.nivel) === lv)
-    && (!q || [r.proyecto, r.area, r.ubicacion, r.actividad, r.autor, r.termoId, r.notas, r.observaciones].join(" ").toLowerCase().includes(q)));
-}
-function renderHist() {
-  if (!S.user) return;
-  renderUserFilter();
-  const list = filtered();
-  if (S.histTab === "calculos") {
-    const hoy = new Date().toDateString();
-    const nHoy = S.calculos.filter(r => new Date(r.ts).toDateString() === hoy).length;
-    const nAlto = S.calculos.filter(r => (r.nivelAplicado ?? r.nivel) >= 3).length;
-    const max = S.calculos.length ? Math.max(...S.calculos.map(r => r.sol ? r.icSolC : r.icC)) : null;
-    $("#hStats").innerHTML = `<div><b>${nHoy}</b><span>Hoy</span></div><div><b>${nAlto}</b><span>Peligro +</span></div><div><b>${max != null ? fmt1(max) + "°" : "—"}</b><span>IC máximo</span></div>`;
-    $("#hList").innerHTML = list.length ? list.map(r => {
-      const L = LEVELS[r.nivelAplicado ?? r.nivel] || LEVELS[0], v = r.sol ? r.icSolC : r.icC;
-      return `<div class="item" data-id="${r.id}" style="--lc:${L.color === "#F2C230" ? "#C99A00" : L.color}">
-        <div class="ic">${fmt1(v)}<small>°</small></div>
-        <div class="bd"><b>${h(L.name)}${r.sol ? " ☀️" : ""} · ${h(r.area || r.ubicacion || "Sin área")}</b>
-        <span>${fmt1(r.tC)} °C · ${r.rh}% HR · ${h(r.actividad || "")}</span>
-        <span>${fmtDate(r.ts)} · ${h(r.autor)}${r.proyecto ? " · " + h(r.proyecto) : ""}</span></div>
-        ${r._pending ? `<span class="tag pend" title="Pendiente de sincronizar">⟳</span>` : ""}</div>`;
-    }).join("") : emptyBox("Sin registros de índice de calor.");
-    $$("#hList .item").forEach(el => el.onclick = () => openCalc(S.calculos.find(r => r.id === el.dataset.id)));
-  } else {
-    const nc = S.termos.filter(t => t.resultado === "No conforme").length, ab = accItems().filter(t => t.accion.estado !== "cerrada").length;
-    $("#hStats").innerHTML = `<div><b>${S.termos.length}</b><span>Revisiones</span></div><div><b>${nc}</b><span>No conformes</span></div><div><b>${ab}</b><span>Acc. abiertas</span></div>`;
-    $("#hList").innerHTML = list.length ? list.map(t => `<div class="item" data-id="${t.id}" style="--lc:${t.resultado === "Conforme" ? "var(--ok)" : "var(--red)"}">
-        ${t.fotos?.[0] ? `<img class="thumb" src="${t.fotos[0]}" alt="">` : `<div class="thumb" style="display:flex;align-items:center;justify-content:center;font-size:22px">💧</div>`}
-        <div class="bd"><b>Termo ${h(t.termoId || "s/ID")} · ${h(t.area || t.ubicacion)}</b>
-        <span>${h(t.resultado)} · Nivel ${h(t.nivelAgua)}${t.accion ? " · Acción " + (t.accion.estado === "cerrada" ? "cerrada" : "abierta") : ""}</span>
-        <span>${fmtDate(t.ts)} · ${h(t.autor)}${t.proyecto ? " · " + h(t.proyecto) : ""}</span></div>
-        ${t._pending ? `<span class="tag pend">⟳</span>` : ""}</div>`).join("") : emptyBox("Sin revisiones de termos.");
-    $$("#hList .item").forEach(el => el.onclick = () => openTermo(S.termos.find(r => r.id === el.dataset.id)));
-  }
-}
-const canEdit = (r) => isAdmin() || r.uid === S.user.uid;
-const canClose = (r) => canEdit(r) || (S.profile.role === "supervisor" && (S.profile.proyectos || []).includes(r.proyectoId));
-function openCalc(r) {
-  if (!r) return; const L = LEVELS[r.nivelAplicado ?? r.nivel] || LEVELS[0];
-  modal("Registro de índice de calor", `
-    <div class="result ${L.ink !== "#fff" ? "dark-ink" : ""}" style="background:${L.color};padding:14px;margin-bottom:14px">
-      <div class="lbl">${r.sol ? "IC estimado bajo sol" : "Índice de calor"}</div><div class="val" style="font-size:52px">${fmt1(r.sol ? r.icSolC : r.icC)}<small>°C</small></div>
-      <div class="lvl" style="font-size:22px">${h(L.name)}</div><div class="act">${h(L.accion)}</div></div>
-    <div class="card"><dl class="kv">
-      <dt>Folio</dt><dd>${folio("IC", r)}</dd><dt>Fecha</dt><dd>${fmtDate(r.ts)}</dd><dt>Proyecto</dt><dd>${h(r.proyecto || "—")}</dd>
-      <dt>Temperatura</dt><dd>${fmt1(r.tC)} °C</dd><dt>Humedad</dt><dd>${r.rh} %</dd>
-      <dt>IC sombra</dt><dd>${fmt1(r.icC)} °C · ${h(LEVELS[r.nivel].name)}</dd>
-      <dt>IC bajo sol</dt><dd>${fmt1(r.icSolC)} °C · ${h(LEVELS[r.nivelSol].name)}</dd>
-      <dt>Sol directo</dt><dd>${r.sol ? "Sí" : "No"}</dd>
-      <dt>Área</dt><dd>${h(r.area || "—")}</dd><dt>Ubicación</dt><dd>${h(r.ubicacion || "—")}</dd>
-      <dt>Actividad</dt><dd>${h(r.actividad || "—")}</dd><dt>Expuestos</dt><dd>${r.expuestos ?? "—"}</dd>
-      <dt>Fuente</dt><dd>${h(r.fuente || "Manual")}${r.lat ? ` (${r.lat}, ${r.lng})` : ""}</dd>
-      <dt>Elaboró</dt><dd>${h(r.autor)}</dd><dt>Notas</dt><dd>${h(r.notas || "—")}</dd></dl></div>
-    <div class="btns"><button class="btn sun" id="mPdf">⬇︎ Reporte PDF</button><button class="btn ghost" id="mGm">✉️ Gmail</button>${canEdit(r) ? `<button class="btn danger" id="mDel">Eliminar</button>` : ""}</div>`,
-    (m, close) => {
-      $("#mPdf", m).onclick = () => pdfCalc(r);
-      $("#mGm", m).onclick = () => { const [su, b] = calcMail(r); gmailCompose(projMails(r.proyectoId), su, b); };
-      $("#mDel", m) && ($("#mDel", m).onclick = async () => { if (await confirmDlg("¿Eliminar este registro? No se puede deshacer.", "Eliminar", true)) { S.be.remove("calculos", r.id).catch(e => toast(e.code || e.message)); close(); toast("Registro eliminado"); } });
-    });
-}
-function openTermo(t) {
-  if (!t) return; const a = t.accion;
-  const lbl = { si: "Sí", no: "No", na: "N/A" };
-  modal(`Termo ${t.termoId || "s/ID"}`, `
-    <div class="card"><dl class="kv">
-      <dt>Folio</dt><dd>${folio("TER", t)}</dd><dt>Fecha</dt><dd>${fmtDate(t.ts)}</dd><dt>Proyecto</dt><dd>${h(t.proyecto || "—")}</dd>
-      <dt>Resultado</dt><dd><span class="tag ${t.resultado === "Conforme" ? "closed" : "open"}">${h(t.resultado)}</span></dd>
-      <dt>Área</dt><dd>${h(t.area || "—")}</dd><dt>Ubicación</dt><dd>${h(t.ubicacion || "—")}</dd>
-      <dt>Capacidad</dt><dd>${t.capacidad ? t.capacidad + " L" : "—"}</dd><dt>Nivel agua</dt><dd>${h(t.nivelAgua)}</dd>
-      <dt>Revisó</dt><dd>${h(t.autor)}</dd></dl></div>
-    <div class="card"><h3>Lista de verificación</h3>${TERMO_CHECK.map(([k, txt]) => `<div style="display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)"><span style="flex:1;font-size:14px">${h(txt)}</span><span class="tag ${t.checklist?.[k] === "no" ? "open" : t.checklist?.[k] === "si" ? "closed" : ""}">${lbl[t.checklist?.[k]] || "—"}</span></div>`).join("")}
-      ${t.observaciones ? `<p style="margin-bottom:0"><b>Observaciones:</b> ${h(t.observaciones)}</p>` : ""}</div>
-    ${t.fotos?.length ? `<div class="card"><h3>Evidencia</h3><div class="photos">${t.fotos.map(f => `<div class="ph"><img src="${f}" alt="" data-zoom></div>`).join("")}</div></div>` : ""}
-    ${a ? `<div class="card"><h3>Acción correctiva <span class="tag ${a.estado === "cerrada" ? "closed" : "open"}">${a.estado === "cerrada" ? "Cerrada" : "Abierta"}</span></h3>
-      <dl class="kv"><dt>Acción</dt><dd>${h(a.descripcion)}</dd><dt>Responsable</dt><dd>${h(a.responsable || "—")}</dd><dt>Compromiso</dt><dd>${h(a.fechaCompromiso || "—")}</dd>
-      ${a.estado === "cerrada" ? `<dt>Cierre</dt><dd>${fmtDate(a.cierreTs)} · ${h(a.cerradoPor)}</dd><dt>Evidencia</dt><dd>${h(a.cierreNota)}</dd>` : ""}</dl>
-      ${a.cierreFoto ? `<img src="${a.cierreFoto}" alt="" style="border-radius:10px;margin-top:10px;max-height:220px" data-zoom>` : ""}
-      ${a.estado !== "cerrada" && canClose(t) ? `<button class="btn ok block" id="mClose" style="margin-top:12px">✔ Cerrar acción correctiva</button>` : ""}</div>` : ""}
-    ${t.firma ? `<div class="card"><h3>Firma</h3><img src="${t.firma}" alt="Firma" style="max-height:110px;background:#fff;border-radius:8px"><div class="small muted">${h(t.firmante)}</div></div>` : ""}
-    <div class="btns"><button class="btn sun" id="mPdf">⬇︎ Reporte PDF</button><button class="btn ghost" id="mGm">✉️ Gmail</button>${canEdit(t) ? `<button class="btn danger" id="mDel">Eliminar</button>` : ""}</div>`,
-    (m, close) => {
-      $("#mPdf", m).onclick = () => pdfTermo(t);
-      $("#mGm", m).onclick = () => { const [su, b] = termoMail(t); gmailCompose(projMails(t.proyectoId), su, b); };
-      $("#mClose", m) && ($("#mClose", m).onclick = () => closeAccion(t));
-      $$("[data-zoom]", m).forEach(i => i.onclick = () => modal("Foto", `<img src="${i.src}" alt="" style="border-radius:12px;width:100%">`));
-      $("#mDel", m) && ($("#mDel", m).onclick = async () => { if (await confirmDlg("¿Eliminar esta revisión? No se puede deshacer.", "Eliminar", true)) { S.be.remove("termos", t.id).catch(e => toast(e.code || e.message)); close(); toast("Revisión eliminada"); } });
-    });
-}
-function exportCsv() {
-  const list = filtered(); if (!list.length) return toast("No hay registros para exportar.");
-  const q = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-  let rows;
-  if (S.histTab === "calculos") {
-    rows = [["Folio", "Fecha", "Elaboró", "Empresa", "Proyecto", "Área", "Ubicación", "Actividad", "Expuestos", "Temp °C", "HR %", "IC sombra °C", "Nivel sombra", "IC sol °C", "Nivel sol", "Sol directo", "Nivel aplicado", "Fuente", "Lat", "Lng", "Notas"],
-      ...list.map(r => [folio("IC", r), fmtDate(r.ts), r.autor, r.empresa, r.proyecto, r.area, r.ubicacion, r.actividad, r.expuestos, r.tC, r.rh, r.icC, LEVELS[r.nivel].name, r.icSolC, LEVELS[r.nivelSol].name, r.sol ? "Sí" : "No", LEVELS[r.nivelAplicado ?? r.nivel].name, r.fuente, r.lat, r.lng, r.notas])];
-  } else {
-    rows = [["Folio", "Fecha", "Revisó", "Proyecto", "Termo", "Capacidad L", "Área", "Ubicación", ...TERMO_CHECK.map(c => c[1]), "Nivel agua", "Resultado", "Observaciones", "Fotos", "Acción", "Responsable", "Compromiso", "Estado acción", "Fecha cierre", "Evidencia cierre", "Firmó"],
-      ...list.map(t => [folio("TER", t), fmtDate(t.ts), t.autor, t.proyecto, t.termoId, t.capacidad, t.area, t.ubicacion, ...TERMO_CHECK.map(([k]) => ({ si: "Sí", no: "No", na: "N/A" }[t.checklist?.[k]] || "")), t.nivelAgua, t.resultado, t.observaciones, t.fotos?.length || 0, t.accion?.descripcion, t.accion?.responsable, t.accion?.fechaCompromiso, t.accion?.estado, t.accion?.cierreTs ? fmtDate(t.accion.cierreTs) : "", t.accion?.cierreNota, t.firmante])];
-  }
-  const csv = "﻿" + rows.map(r => r.map(q).join(",")).join("\r\n");
-  download(new Blob([csv], { type: "text/csv;charset=utf-8" }), `CalorFS_${S.histTab}_${ymd(Date.now())}.csv`);
-}
 function download(blob, name) {
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
   document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
 }
 
-/* =====================================================================
-   PANEL (DASHBOARD) POR PROYECTO
-   ===================================================================== */
-function renderPanel() {
-  if (!S.user || !$("#v-panel").classList.contains("on")) return;
-  const pj = $("#dProj").value, days = +$("#dPer").value;
-  const from = days === 0 ? 0 : days === 1 ? new Date().setHours(0, 0, 0, 0) : Date.now() - days * 864e5;
-  const inScope = (r) => (!pj || r.proyectoId === pj) && r.ts >= from;
-  const C = S.calculos.filter(inScope), T = S.termos.filter(inScope);
-  const lv = (r) => r.nivelAplicado ?? r.nivel, icv = (r) => r.sol ? r.icSolC : r.icC;
-  const max = C.length ? Math.max(...C.map(icv)) : null, Lmax = max != null ? levelOf(max) : null;
-  const alto = C.filter(r => lv(r) >= 3).length;
-  const conf = T.length ? Math.round(T.filter(t => t.resultado === "Conforme").length / T.length * 100) : null;
-  const allAcc = S.termos.filter(t => t.accion && t.accion.estado !== "cerrada" && (!pj || t.proyectoId === pj));
-  const today = new Date().toISOString().slice(0, 10), venc = allAcc.filter(t => t.accion.fechaCompromiso && t.accion.fechaCompromiso < today).length;
-  $("#dKpi").innerHTML = `
-    <div style="--kc:var(--sky)"><b>${C.length}</b><span>Mediciones</span></div>
-    <div style="--kc:${Lmax ? Lmax.color : "var(--line)"}"><b>${max != null ? fmt1(max) + "°" : "—"}</b><span>IC máximo</span></div>
-    <div style="--kc:var(--red)"><b>${alto}</b><span>Peligro o más</span></div>
-    <div style="--kc:var(--navy)"><b>${T.length}</b><span>Termos revisados</span></div>
-    <div style="--kc:var(--ok)"><b>${conf != null ? conf + "%" : "—"}</b><span>Conformidad</span></div>
-    <div style="--kc:var(--org)"><b>${allAcc.length}${venc ? `<small style="font-size:14px;color:var(--red)"> (${venc} venc.)</small>` : ""}</b><span>Acc. abiertas</span></div>`;
-
-  // Serie de tiempo (SVG) con bandas de riesgo
-  const pts = C.slice().sort((x, y) => x.ts - y.ts);
-  if (pts.length < 2) $("#dChart").innerHTML = `<p class="muted small" style="margin:0">Se necesitan al menos 2 mediciones en el periodo para graficar.</p>`;
-  else {
-    const W = 360, H = 190, pl = 24, pr = 6, pt = 6, pb = 20, y0 = 20, y1 = Math.max(60, Math.ceil(Math.max(...pts.map(icv)) / 5) * 5);
-    const t0 = pts[0].ts, t1 = pts[pts.length - 1].ts || t0 + 1;
-    const X = (t) => pl + (t - t0) / Math.max(1, t1 - t0) * (W - pl - pr), Y = (v) => pt + (1 - (Math.min(Math.max(v, y0), y1) - y0) / (y1 - y0)) * (H - pt - pb);
-    const cuts = [y0, 26.7, 32.2, 39.4, 51.7, y1];
-    let g = LEVELS.map((l, i) => `<rect x="${pl}" y="${Y(cuts[i + 1])}" width="${W - pl - pr}" height="${Y(cuts[i]) - Y(cuts[i + 1])}" fill="${l.color}" opacity=".13"/>`).join("");
-    g += [20, 30, 40, 50, 60].filter(v => v <= y1).map(v => `<text x="${pl - 4}" y="${Y(v) + 4}" text-anchor="end" font-size="10" fill="#5D6B7A">${v}</text>`).join("");
-    g += `<polyline fill="none" stroke="#0F3557" stroke-width="2" stroke-linejoin="round" points="${pts.map(r => X(r.ts) + "," + Y(icv(r))).join(" ")}"/>`;
-    g += pts.map(r => `<circle cx="${X(r.ts)}" cy="${Y(icv(r))}" r="4" fill="${LEVELS[lv(r)].color}" stroke="#fff" stroke-width="1.5"><title>${fmtDate(r.ts)} · ${fmt1(icv(r))} °C · ${h(r.area || "")}</title></circle>`).join("");
-    g += `<text x="${pl}" y="${H - 6}" font-size="10" fill="#5D6B7A">${fmtDate(t0)}</text><text x="${W - pr}" y="${H - 6}" text-anchor="end" font-size="10" fill="#5D6B7A">${fmtDate(t1)}</text>`;
-    $("#dChart").innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Índice de calor en el tiempo">${g}</svg>`;
-  }
-  // Distribución
-  $("#dDist").innerHTML = C.length ? LEVELS.map(l => { const n = C.filter(r => lv(r) === l.k).length, pc = n / C.length * 100;
-    return `<div class="dbar"><span>${l.name}</span><div class="tr"><i style="width:${pc}%;background:${l.color}"></i></div><b>${n}</b></div>`; }).join("")
-    : `<p class="muted small" style="margin:0">Sin mediciones en el periodo.</p>`;
-  // Última por área
-  const last = new Map(); C.forEach(r => { const k = (r.proyecto || "") + "|" + (r.area || r.ubicacion || "Sin área"); if (!last.has(k) || last.get(k).ts < r.ts) last.set(k, r); });
-  const rowsA = [...last.values()].sort((x, y) => y.ts - x.ts).slice(0, 15);
-  $("#dAreas").innerHTML = rowsA.length ? `<table class="at"><tr><th>Área</th><th>IC</th><th>Nivel</th><th>Hora</th></tr>${rowsA.map(r => { const L = LEVELS[lv(r)];
-    return `<tr data-id="${r.id}" style="cursor:pointer"><td><b>${h(r.area || r.ubicacion || "Sin área")}</b>${!pj && r.proyecto ? `<div class="small muted">${h(r.proyecto)}</div>` : ""}</td><td><b>${fmt1(icv(r))}°</b></td><td><span class="chip" style="background:${L.color};color:${L.ink}">${L.name}</span></td><td class="small muted">${new Date(r.ts).toLocaleString("es-MX", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}<br>${h(r.autor)}</td></tr>`; }).join("")}</table>`
-    : `<p class="muted small" style="margin:0">Sin mediciones en el periodo.</p>`;
-  $$("#dAreas tr[data-id]").forEach(tr => tr.onclick = () => openCalc(S.calculos.find(r => r.id === tr.dataset.id)));
-  // Alertas
-  const al = C.filter(r => lv(r) >= 3).slice(0, 10);
-  $("#dAlerts").innerHTML = al.length ? al.map(r => { const L = LEVELS[lv(r)];
-    return `<div class="item" data-id="${r.id}" style="--lc:${L.color};box-shadow:none;border:1px solid var(--line);border-left-width:6px"><div class="ic">${fmt1(icv(r))}<small>°</small></div><div class="bd"><b>${h(L.name)} · ${h(r.area || "Sin área")}</b><span>${fmtDate(r.ts)} · ${h(r.autor)}</span></div></div>`; }).join("")
-    : `<p class="muted small" style="margin:0">Sin alertas en el periodo. 👍</p>`;
-  $$("#dAlerts .item").forEach(el => el.onclick = () => openCalc(S.calculos.find(r => r.id === el.dataset.id)));
-  // Termos por proyecto
-  const byP = new Map(); T.forEach(t => { const k = t.proyecto || "Sin proyecto"; const o = byP.get(k) || { n: 0, c: 0 }; o.n++; if (t.resultado === "Conforme") o.c++; byP.set(k, o); });
-  $("#dTermos").innerHTML = byP.size ? [...byP].map(([k, o]) => { const pc = Math.round(o.c / o.n * 100);
-    return `<div class="dbar"><span>${h(k)}</span><div class="tr"><i style="width:${pc}%;background:${pc >= 90 ? "var(--ok)" : pc >= 70 ? "var(--warn)" : "var(--red)"}"></i></div><b>${pc}%</b></div>`; }).join("") + `<p class="small muted" style="margin:6px 0 0">% de revisiones conformes (${T.length} revisiones).</p>`
-    : `<p class="muted small" style="margin:0">Sin revisiones de termos en el periodo.</p>`;
-}
-
-/* =====================================================================
-   ADMINISTRACIÓN: proyectos, autorización, roles y asignaciones
-   ===================================================================== */
-const isSuperU = (u) => (u.email || "").toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase();
-const iAmSuper = () => (S.profile?.email || "").toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase();
-function renderAdmin() {
-  if (!isAdmin()) return;
-  const pend = S.users.filter(u => u.status === "pendiente");
-  const n = pend.length; $("#bdgAdm").textContent = n; $("#bdgAdm").classList.toggle("hidden", !n);
-  $("#aStats").innerHTML = `<div><b>${S.users.filter(u => u.status === "aprobado").length}</b><span>Activos</span></div><div><b>${n}</b><span>Pendientes</span></div><div><b>${S.proyectos.filter(p => p.activo !== false).length}</b><span>Proyectos</span></div>`;
-  const ps = S.proyectos.slice().sort((a, b) => (a.nombre || "").localeCompare(b.nombre || ""));
-  $("#aProj").innerHTML = ps.length ? ps.map(p => { const nu = S.users.filter(u => (u.proyectos || []).includes(p.id)).length;
-    return `<div class="proj"><div class="av" style="background:${p.activo === false ? "#EEF2F6" : "#FFF2E8"};color:var(--sun)">🏗️</div><div class="bd"><b>${h(p.nombre)} ${p.activo === false ? '<span class="tag">Inactivo</span>' : ""}</b><span>${h([p.cliente, p.ubicacion].filter(Boolean).join(" · ") || "—")}</span><span>${nu} usuario(s) · ${h(p.correos || "sin correos de aviso")}</span></div><button class="btn ghost sm" data-proj="${p.id}">Editar</button></div>`; }).join("")
-    : `<p class="muted small" style="margin:0">Crea tu primer proyecto para asignar supervisores y visores.</p>`;
-  $("#aPend").innerHTML = n ? pend.map(u => userRow(u, true)).join("") : `<p class="muted small" style="margin:0">No hay solicitudes por autorizar.</p>`;
-  const q = $("#aSearch").value.trim().toLowerCase();
-  const rest = S.users.filter(u => u.status !== "pendiente" && (!q || (u.nombre + " " + u.email).toLowerCase().includes(q)));
-  $("#aUsers").innerHTML = rest.map(u => userRow(u, false)).join("") || `<p class="muted small">Sin resultados.</p>`;
-}
-function userRow(u, pending) {
-  const me = u.id === S.user.uid, sup = isSuperU(u);
-  const locked = me || (sup && !iAmSuper());
-  const st = { aprobado: ["closed", "Activo"], pendiente: ["pend", "Pendiente"], rechazado: ["open", "Rechazado"], suspendido: ["open", "Suspendido"] }[u.status] || ["", u.status];
-  const pn = (u.proyectos || []).map(projName).filter(Boolean);
-  let acts = "";
-  if (pending) acts = `<button class="btn ok sm" data-act="acceso" data-id="${u.id}">✔ Autorizar…</button><button class="btn danger sm" data-act="rechazar" data-id="${u.id}">Rechazar</button>`;
-  else if (!locked) {
-    acts = `<button class="btn ghost sm" data-act="acceso" data-id="${u.id}">Rol y proyectos</button>`;
-    acts += u.status === "aprobado" ? `<button class="btn danger sm" data-act="suspender" data-id="${u.id}">Suspender</button>` : `<button class="btn ok sm" data-act="reactivar" data-id="${u.id}">Reactivar</button>`;
-  } else if (me && !sup) acts = "";
-  return `<div class="user"><div class="av">${h(initials(u.nombre || u.email))}</div><div class="bd">
-    <b>${h(u.nombre || "Sin nombre")} ${me ? '<span class="tag">Tú</span>' : ""}</b>
-    <span>${h(u.email)}</span><span>${h([u.puesto, u.empresa].filter(Boolean).join(" · ") || "—")} · ${fmtDay(u.createdAt)}</span>
-    <div class="acts"><span class="tag ${st[0]}">${st[1]}</span><span class="tag ${u.role === "admin" ? "adm" : ""}">${sup ? "Admin principal" : h(ROLES[u.role] || u.role)}</span>${u.role !== "admin" ? `<span class="tag">${pn.length ? h(pn.join(", ")) : "Sin proyectos"}</span>` : ""}</div>
-    ${acts ? `<div class="acts">${acts}</div>` : ""}</div></div>`;
-}
-function accessModal(u) {
-  const ps = S.proyectos.filter(p => p.activo !== false).sort((a, b) => (a.nombre || "").localeCompare(b.nombre || ""));
-  const has = new Set(u.proyectos || []);
-  modal(u.status === "pendiente" ? "Autorizar usuario" : "Rol y proyectos", `
-    <p style="margin-top:0"><b>${h(u.nombre || "")}</b><br><span class="small muted">${h(u.email)}</span></p>
-    <label class="f">Rol</label>
-    <select class="in" id="acRole">${Object.entries(ROLES).map(([k, v]) => `<option value="${k}" ${u.role === k || (k === "supervisor" && u.role === "usuario") ? "selected" : ""}>${v}</option>`).join("")}</select>
-    <p class="small muted" id="acHelp"></p>
-    <label class="f">Proyectos asignados</label>
-    <div class="cklist">${ps.length ? ps.map(p => `<label><input type="checkbox" value="${p.id}" ${has.has(p.id) ? "checked" : ""}>${h(p.nombre)}${p.cliente ? ` <span class="small muted">· ${h(p.cliente)}</span>` : ""}</label>`).join("") : `<p class="small muted">Aún no hay proyectos. Créalos en la sección Proyectos.</p>`}</div>
-    <label class="switch" style="margin-top:12px"><input type="checkbox" id="acMail" ${u.status === "pendiente" ? "checked" : ""}><span class="t"></span><div><b>Avisar al usuario por Gmail</b><span class="small muted">Abre un correo listo para enviar</span></div></label>
-    <button class="btn sun block" id="acOk" style="margin-top:14px">${u.status === "pendiente" ? "Autorizar acceso" : "Guardar cambios"}</button>`, (m, close) => {
-      const help = { admin: "Autoriza usuarios, crea proyectos, designa administradores y ve todos los registros.", supervisor: "Captura índices de calor y revisiones de termos; ve el panel y registros de sus proyectos.", visor: "Solo consulta el panel e historial de sus proyectos (cliente, gerencia). No captura." };
-      const upd = () => $("#acHelp", m).textContent = help[$("#acRole", m).value]; $("#acRole", m).onchange = upd; upd();
-      $("#acOk", m).onclick = async () => {
-        const role = $("#acRole", m).value, proyectos = $$(".cklist input:checked", m).map(i => i.value);
-        if (role !== "admin" && !proyectos.length && !(await confirmDlg("No asignaste proyectos. El usuario solo verá sus propios registros. ¿Continuar?", "Continuar"))) return;
-        const patch = { role, proyectos, status: "aprobado" };
-        if (u.status !== "aprobado") Object.assign(patch, { approvedBy: S.profile.nombre || S.user.email, approvedAt: Date.now() });
-        try {
-          await S.be.updateUser(u.id, patch); close(); toast(u.status === "pendiente" ? "Usuario autorizado ✔" : "Acceso actualizado ✔");
-          if ($("#acMail", m).checked) gmailCompose(u.email, "Tu acceso a CalorFS fue autorizado",
-            `Hola ${u.nombre || ""}:\n\nTu cuenta de CalorFS fue autorizada con el rol de ${ROLES[role]}.\n${proyectos.length ? "Proyectos asignados: " + proyectos.map(projName).join(", ") + "\n" : ""}\nIngresa en: ${location.origin + location.pathname}\n\nSaludos,\n${S.profile.nombre || ""}`);
-        } catch (e) { toast("Error: " + (e.code || e.message)); }
-      };
-    });
-}
-function projectModal(p) {
-  p = p || {};
-  modal(p.id ? "Editar proyecto" : "Nuevo proyecto", `
-    <label class="f" style="margin-top:0">Nombre del proyecto</label><input class="in" id="pjN" value="${h(p.nombre || "")}" placeholder="Ej. Ampliación Planta Norte">
-    <div class="grid2"><div><label class="f">Cliente</label><input class="in" id="pjC" value="${h(p.cliente || "")}"></div>
-    <div><label class="f">Ubicación</label><input class="in" id="pjU" value="${h(p.ubicacion || "")}" placeholder="Ciudad / sitio"></div></div>
-    <label class="f">Correos para alertas (separados por coma)</label><input class="in" id="pjM" value="${h(p.correos || "")}" placeholder="residente@empresa.com, sst@cliente.com">
-    <p class="small muted" style="margin:4px 0 0">Se usan al notificar por Gmail un nivel de Peligro o un termo no conforme.</p>
-    ${p.id ? `<label class="switch" style="margin-top:12px"><input type="checkbox" id="pjA" ${p.activo !== false ? "checked" : ""}><span class="t"></span><div><b>Proyecto activo</b><span class="small muted">Los inactivos no aparecen para capturar</span></div></label>` : ""}
-    <button class="btn sun block" id="pjOk" style="margin-top:14px">Guardar proyecto</button>`, (m, close) => {
-      $("#pjOk", m).onclick = async () => {
-        const nombre = $("#pjN", m).value.trim(); if (!nombre) return toast("Escribe el nombre del proyecto.");
-        const data = { nombre, cliente: $("#pjC", m).value.trim(), ubicacion: $("#pjU", m).value.trim(), correos: $("#pjM", m).value.trim(), activo: p.id ? $("#pjA", m).checked : true };
-        if (!p.id) Object.assign(data, { ts: Date.now(), creadoPor: S.profile.nombre || S.user.email });
-        try { await S.be.saveProject(p.id, data); close(); toast("Proyecto guardado ✔"); } catch (e) { toast("Error: " + (e.code || e.message)); }
-      };
-    });
-}
-function initAdmin() {
-  $("#aSearch").addEventListener("input", renderAdmin);
-  $("#btnNewProj").onclick = () => projectModal();
-  $("#v-admin").addEventListener("click", async (e) => {
-    const pb = e.target.closest("[data-proj]"); if (pb) return projectModal(S.proyectos.find(p => p.id === pb.dataset.proj));
-    const b = e.target.closest("[data-act]"); if (!b) return;
-    const u = S.users.find(x => x.id === b.dataset.id); if (!u) return;
-    if (b.dataset.act === "acceso") return accessModal(u);
-    const by = S.profile.nombre || S.user.email;
-    const ops = {
-      rechazar: [`¿Rechazar la solicitud de ${u.nombre || u.email}?`, { status: "rechazado", reviewedBy: by, reviewedAt: Date.now() }, "Solicitud rechazada", true],
-      suspender: [`¿Suspender el acceso de ${u.nombre || u.email}?`, { status: "suspendido", reviewedBy: by, reviewedAt: Date.now() }, "Usuario suspendido", true],
-      reactivar: [`¿Reactivar el acceso de ${u.nombre || u.email}?`, { status: "aprobado", reviewedBy: by, reviewedAt: Date.now() }, "Usuario reactivado", false]
-    }[b.dataset.act];
-    if (!ops || !(await confirmDlg(ops[0], "Confirmar", ops[3]))) return;
-    try { await S.be.updateUser(u.id, ops[1]); toast(ops[2]); } catch (er) { toast("Error: " + (er.code || er.message)); }
-  });
-}
-
-/* =====================================================================
-   PERFIL / PWA
-   ===================================================================== */
-function renderProfile() {
-  const p = S.profile;
-  $("#hdrUser").textContent = `${p.nombre || p.email} · ${ROLES[p.role] || p.role}`;
-  $("#hdrAv").textContent = initials(p.nombre || p.email);
-  $("#pAv").textContent = initials(p.nombre || p.email); $("#pName").textContent = p.nombre || "Sin nombre"; $("#pEmail").textContent = p.email;
-  $("#pRole").innerHTML = `<span class="tag ${p.role === "admin" ? "adm" : "closed"}">${h(ROLES[p.role] || p.role)}</span>` + (myProjects().length ? `<div class="small muted" style="margin-top:6px">Proyectos: ${h(myProjects().map(x => x.nombre).join(", "))}</div>` : "");
-  if (document.activeElement?.closest?.("#v-perfil") == null) { $("#pfNombre").value = p.nombre || ""; $("#pfEmpresa").value = p.empresa || ""; $("#pfPuesto").value = p.puesto || ""; }
-  $("#pVer").textContent = APP_VERSION; $("#pMode").textContent = DEMO ? "Demostración (local)" : "Nube · Firebase Firestore";
-}
-function initProfile() {
-  $("#btnSaveProf").onclick = async () => {
-    try { await S.be.updateUser(S.user.uid, { nombre: $("#pfNombre").value.trim(), empresa: $("#pfEmpresa").value.trim(), puesto: $("#pfPuesto").value.trim() }); toast("Datos actualizados ✔"); }
-    catch (e) { toast("Error: " + (e.code || e.message)); }
-  };
-  let deferred;
-  window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferred = e; $("#btnInstall").classList.remove("hidden"); });
-  $("#btnInstall").onclick = async () => { if (!deferred) return; deferred.prompt(); await deferred.userChoice; deferred = null; $("#btnInstall").classList.add("hidden"); };
-  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.navigator.standalone;
-  $("#iosHint").classList.toggle("hidden", !ios);
-}
-function initNet() {
-  const upd = () => { const on = navigator.onLine; $("#net").classList.toggle("off", !on); $("#net span").textContent = on ? "En línea" : "Sin conexión"; };
-  window.addEventListener("online", () => { upd(); toast("Conexión restablecida: sincronizando…"); });
-  window.addEventListener("offline", () => { upd(); toast("Sin conexión: puedes seguir trabajando, se sincronizará después."); });
-  upd();
-}
-function initSW() {
-  if (!("serviceWorker" in navigator) || location.protocol === "file:") { $("#pSw").textContent = "No disponible en este entorno"; return; }
-  navigator.serviceWorker.register("sw.js").then(reg => {
-    $("#pSw").textContent = "Activo ✔";
-    const ask = (w) => toast("Nueva versión de CalorFS disponible", { label: "Actualizar", fn: () => w.postMessage("SKIP_WAITING") });
-    if (reg.waiting) ask(reg.waiting);
-    reg.addEventListener("updatefound", () => { const w = reg.installing; w.addEventListener("statechange", () => { if (w.state === "installed" && navigator.serviceWorker.controller) ask(w); }); });
-  }).catch(() => $("#pSw").textContent = "No se pudo activar");
-  let reloaded = false;
-  navigator.serviceWorker.addEventListener("controllerchange", () => { if (!reloaded) { reloaded = true; location.reload(); } });
-}
-
-/* =====================================================================
-   REPORTES PDF (jsPDF)
-   ===================================================================== */
 let jsPDFLib, logoData;
 function loadScript(src) { return new Promise((res, rej) => { const s = document.createElement("script"); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
 async function getPDF() {
@@ -1642,7 +1281,7 @@ function pdfHeader(d, title, fol, ts) {
   d.setFillColor(242, 107, 29); d.rect(0, 30, W, 1.6, "F");
   if (logoData) d.addImage(logoData, "PNG", 12, 5, 20, 20);
   d.setTextColor(255); d.setFont("helvetica", "bold"); d.setFontSize(16); d.text(pt(title), 37, 14);
-  d.setFont("helvetica", "normal"); d.setFontSize(9); d.text("CalorFS · Seguridad e Higiene en el Trabajo", 37, 20);
+  d.setFont("helvetica", "normal"); d.setFontSize(9); d.text(pt(`CalorFS por ${BRAND} · Seguridad e Higiene en el Trabajo`), 37, 20);
   d.setFont("helvetica", "bold"); d.text(pt("Folio: " + fol), W - 12, 13, { align: "right" });
   d.setFont("helvetica", "normal"); d.text(pt(fmtDate(ts)), W - 12, 19, { align: "right" });
   d.setTextColor(19, 32, 46); return 40;
@@ -1651,9 +1290,13 @@ function pdfFooter(d) {
   const n = d.getNumberOfPages(), W = d.internal.pageSize.getWidth(), H = d.internal.pageSize.getHeight();
   for (let i = 1; i <= n; i++) {
     d.setPage(i); d.setDrawColor(220, 227, 234); d.line(12, H - 14, W - 12, H - 14);
-    d.setFontSize(7.5); d.setTextColor(93, 107, 122);
-    d.text(pt("Método: ecuación de regresión de Rothfusz (NOAA/NWS). Herramienta de tamizaje; no sustituye la evaluación TGBH de la NOM-015-STPS-2001."), 12, H - 9);
-    d.text(`Página ${i} de ${n}`, W - 12, H - 9, { align: "right" });
+    d.setFont("helvetica", "normal"); d.setFontSize(7.5); d.setTextColor(93, 107, 122);
+    d.text(`Página ${i} de ${n}`, W - 12, H - 15.5, { align: "right" });
+    d.text(pt("Método: ecuación de regresión de Rothfusz (NOAA/NWS). Herramienta de tamizaje; no sustituye la evaluación TGBH de la NOM-015-STPS-2001."), 12, H - 9.5);
+    const soc = activeSocial().map(s => s.usuario || s.red).join("  |  ");
+    d.setFont("helvetica", "bold"); d.setFontSize(6.8); d.setTextColor(242, 107, 29);
+    d.text(pt(`CalorFS por ${BRAND} · herramienta gratuita` + (soc ? "  ·  Sígueme: " + soc : "")), 12, H - 5.5);
+    d.setFont("helvetica", "normal");
   }
 }
 function pdfSection(d, y, t) {
@@ -1689,13 +1332,14 @@ async function savePdf(d, name) {
   }
   download(blob, name);
 }
+
 async function pdfCalc(r) {
   let d; try { d = await getPDF(); } catch { return toast("No se pudo cargar el generador de PDF. Conéctate una vez para habilitarlo sin conexión."); }
-  const fol = r.id === "BORRADOR" ? "BORRADOR" : folio("IC", r);
-  const L = LEVELS[r.nivelAplicado ?? r.nivel], W = d.internal.pageSize.getWidth();
+  const fol = folio("IC", r.ts);
+  const L = LEVELS[r.nivelAplicado], W = d.internal.pageSize.getWidth();
   let y = pdfHeader(d, "REPORTE DE ÍNDICE DE CALOR", fol, r.ts);
   y = pdfSection(d, y, "Datos generales");
-  y = pdfKV(d, y, [["Proyecto", r.proyecto || "—"], ["Empresa", r.empresa], ["Área / Frente", r.area], ["Ubicación", r.ubicacion], ["Actividad", r.actividad], ["Trab. expuestos", r.expuestos ?? "—"], ["Fuente de datos", r.fuente], ["Coordenadas", r.lat ? `${r.lat}, ${r.lng}` : "—"], ["Elaborado por", r.autor]]);
+  y = pdfKV(d, y, [["Empresa / Ubic.", r.ubicacion || "—"], ["Área / Frente", r.area], ["Actividad", r.actividad], ["Trab. expuestos", r.expuestos ?? "—"], ["Fuente de datos", r.fuente], ["Coordenadas", r.lat ? `${r.lat}, ${r.lng}` : "—"], ["Elaborado por", r.autor], ["Puesto", r.puesto || "—"]]);
   y = pdfSection(d, y, "Mediciones y resultado");
   y = pdfKV(d, y, [["Temp. bulbo seco", `${fmt1(r.tC)} °C (${fmt1(r.tC * 9 / 5 + 32)} °F)`], ["Humedad relativa", `${r.rh} %`], ["IC a la sombra", `${fmt1(r.icC)} °C - ${LEVELS[r.nivel].name}`], ["IC bajo sol (+8)", `${fmt1(r.icSolC)} °C - ${LEVELS[r.nivelSol].name}`], ["Sol directo", r.sol ? "Sí" : "No"], ["Nivel aplicado", L.name]]);
   y = pdfEnsure(d, y, 30);
@@ -1723,10 +1367,10 @@ async function pdfCalc(r) {
 }
 async function pdfTermo(t) {
   let d; try { d = await getPDF(); } catch { return toast("No se pudo cargar el generador de PDF. Conéctate una vez para habilitarlo sin conexión."); }
-  const fol = folio("TER", t), W = d.internal.pageSize.getWidth();
+  const fol = folio("TER", t.ts), W = d.internal.pageSize.getWidth();
   let y = pdfHeader(d, "REVISIÓN DE TERMO DE AGUA", fol, t.ts);
   y = pdfSection(d, y, "Datos generales");
-  y = pdfKV(d, y, [["Proyecto", t.proyecto || "—"], ["Empresa", t.empresa], ["Elaborado por", t.autor], ["ID termo", t.termoId], ["Capacidad", t.capacidad ? t.capacidad + " L" : "—"], ["Área / Frente", t.area], ["Ubicación", t.ubicacion], ["Nivel de agua", t.nivelAgua], ["Resultado", t.resultado], ["Firma", t.firmante]]);
+  y = pdfKV(d, y, [["Empresa / Ubic.", t.ubicacion || "—"], ["Área / Frente", t.area], ["ID termo", t.termoId], ["Capacidad", t.capacidad ? t.capacidad + " L" : "—"], ["Nivel de agua", t.nivelAgua], ["Resultado", t.resultado], ["Revisó", t.autor], ["Firma", t.firmante]]);
   y = pdfSection(d, y, "Lista de verificación");
   d.setFontSize(9);
   TERMO_CHECK.forEach(([k, txt], i) => {
@@ -1751,9 +1395,8 @@ async function pdfTermo(t) {
   }
   if (t.accion) {
     const a = t.accion;
-    y = pdfSection(d, y, "Acción correctiva - " + (a.estado === "cerrada" ? "CERRADA" : "ABIERTA"));
-    y = pdfKV(d, y, [["Acción", a.descripcion], ["Responsable", a.responsable], ["Fecha compromiso", a.fechaCompromiso || "—"], ["Estado", a.estado === "cerrada" ? "Cerrada" : "Abierta"]].concat(a.estado === "cerrada" ? [["Fecha de cierre", fmtDate(a.cierreTs)], ["Cerró", a.cerradoPor], ["Evidencia", a.cierreNota]] : []));
-    if (a.cierreFoto) { y = pdfEnsure(d, y, 52); try { d.addImage(a.cierreFoto, "JPEG", 14, y, 64, 46, undefined, "FAST"); } catch {} y += 50; }
+    y = pdfSection(d, y, "Acción correctiva");
+    y = pdfKV(d, y, [["Acción", a.descripcion], ["Responsable", a.responsable || "—"], ["Fecha compromiso", a.fechaCompromiso || "—"]]);
   }
   y = pdfEnsure(d, y, 44); y += 4;
   if (t.firma) { try { d.addImage(t.firma, "PNG", W / 2 - 30, y, 60, 26); } catch {} }
@@ -1768,16 +1411,16 @@ async function pdfTermo(t) {
    ARRANQUE
    ===================================================================== */
 async function boot() {
-  buildStatic(); initAuthUI(); initCalc(); initTermos(); initHist(); initAdmin(); initProfile(); initNet(); initSW();
+  buildStatic(); initAuthUI(); initCalc(); initTermos(); initAdmin(); initProfile(); initNet(); initSW();
   $$("nav.bn button").forEach(b => b.onclick = () => go(b.dataset.v));
   $("#hdrAv").onclick = () => go("perfil");
-  ["#dProj", "#dPer"].forEach(x => $(x).addEventListener("input", renderPanel));
   $("#demoBar").classList.toggle("hidden", !DEMO);
   try { S.be = DEMO ? makeDemo() : await makeFirebase(FIREBASE_CONFIG); }
   catch (e) { console.error(e); show("auth"); const er = $("#fLogin .err"); er.textContent = "No se pudo cargar Firebase. Verifica tu conexión (la primera vez se necesita internet)."; er.classList.remove("hidden"); return; }
   S.be.onAuth(onAuthChange);
 }
 boot();
+
 </script>
 </body>
 </html>

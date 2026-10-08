@@ -1,6 +1,6 @@
 /* CalorFS – Service Worker
    Cambia VERSION cada vez que publiques cambios para forzar la actualización. */
-const VERSION = 'calorfs-v1.0.0';
+const VERSION = 'calorfs-v2.0.0';
 const FB = 'https://www.gstatic.com/firebasejs/10.12.2/';
 
 const SHELL = [
