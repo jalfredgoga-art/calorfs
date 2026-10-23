@@ -219,6 +219,9 @@ table.at td{padding:7px 4px;border-bottom:1px solid var(--line);vertical-align:m
 .social-login a{padding:7px 12px;font-size:13px}
 .brand-by{opacity:.95;margin-top:6px!important;font-size:15px}
 .brand-card{border:1.5px solid #FBD3B5;background:linear-gradient(180deg,#FFF8F2,#fff)}
+.contact-box{display:grid;gap:8px}
+.contact-box a.cl{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;background:#fff;text-decoration:none;color:var(--navy);font-weight:700;font-size:14px;text-align:left}
+.contact-box a.cl span{font-weight:500;color:var(--muted);font-size:12px;display:block}
 /* ---------- Bottom nav ---------- */
 nav.bn{position:fixed;bottom:0;left:0;right:0;z-index:30;background:#fff;border-top:1px solid var(--line);padding-bottom:var(--safe-b);box-shadow:0 -4px 16px rgba(15,53,87,.06)}
 nav.bn .wrap{display:flex;padding:0 6px}
@@ -258,7 +261,44 @@ dl.kv dd{margin:0;word-break:break-word}
 <body>
 
 <!-- Pantalla de carga -->
-<div id="scr-loading" class="loading"><img src="icons/icon-192.png" alt="CalorFS"></div>
+<div id="scr-loading" class="loading" style="flex-direction:column;gap:18px;padding:24px;text-align:center;color:#fff">
+  <img src="icons/icon-192.png" alt="CalorFS">
+  <div id="bootHelp" style="display:none;max-width:340px">
+    <p style="margin:0 0 6px;font-weight:700;font-size:17px">La app está tardando en cargar</p>
+    <p style="margin:0 0 14px;opacity:.85;font-size:14px">Puede ser una versión vieja guardada en tu celular o una conexión lenta.</p>
+    <button id="btnRepair" style="background:#F26B1D;color:#fff;border:0;border-radius:12px;padding:13px 20px;font-weight:700;font-size:16px;width:100%">Reparar y recargar</button>
+    <p id="bootErr" style="margin:12px 0 0;font-size:12px;opacity:.75;word-break:break-word"></p>
+  </div>
+</div>
+<script>
+/* Auto-reparación (script clásico: funciona aunque falle el resto de la app) */
+(function () {
+  function repair() {
+    var done = function () { location.replace(location.pathname + "?v=" + Date.now()); };
+    try {
+      var jobs = [];
+      if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations)
+        jobs.push(navigator.serviceWorker.getRegistrations().then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister(); })); }));
+      if (window.caches && caches.keys)
+        jobs.push(caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); }));
+      Promise.all(jobs).then(done, done);
+      setTimeout(done, 3000);
+    } catch (e) { done(); }
+  }
+  window.__calorfsRepair = repair;
+  if (/[?&]reset=1/.test(location.search)) { repair(); return; }
+  function showHelp(msg) {
+    var l = document.getElementById("scr-loading");
+    if (!l || l.classList.contains("hidden")) return;
+    document.getElementById("bootHelp").style.display = "block";
+    if (msg) document.getElementById("bootErr").textContent = "Detalle: " + msg;
+  }
+  window.addEventListener("error", function (e) { showHelp(e && e.message); });
+  window.addEventListener("unhandledrejection", function (e) { showHelp(e && e.reason && (e.reason.message || String(e.reason))); });
+  setTimeout(function () { showHelp(""); }, 10000);
+  document.addEventListener("click", function (e) { if (e.target && e.target.id === "btnRepair") { e.target.textContent = "Reparando…"; repair(); } });
+})();
+</script>
 
 <!-- Autenticación -->
 <div id="scr-auth" class="auth hidden">
@@ -299,9 +339,10 @@ dl.kv dd{margin:0;word-break:break-word}
       <button class="btn sun block" style="margin-top:14px">Crear cuenta</button>
       <p class="small muted" style="margin:10px 0 0;text-align:center">Tu cuenta quedará pendiente hasta que el administrador la autorice.</p>
     </form>
-    <div class="card social-card hidden" style="text-align:center">
+    <div class="card social-card" style="text-align:center">
       <p class="small" style="margin:0 0 10px"><b>Sígueme en redes</b> para más herramientas y tips de seguridad e higiene</p>
       <div class="social social-login" style="justify-content:center"></div>
+      <div class="contact-box hidden" style="margin-top:12px"></div>
     </div>
     <p class="small muted" style="text-align:center">CalorFS · Herramienta gratuita de Fredy Safe<br>Elaborado por José Alfredo González García</p>
   </div></div>
@@ -416,6 +457,7 @@ dl.kv dd{margin:0;word-break:break-word}
           <div><b>CalorFS es gratuita, por Fredy Safe</b><div class="small muted">Si te sirvió, compártela con tu equipo y sígueme para más herramientas SST.</div></div>
         </div>
         <div class="social" style="margin-top:12px"></div>
+      <div class="contact-box hidden" style="margin-top:12px"></div>
         <button class="btn ghost block btn-share-app" style="margin-top:10px">🔗 Compartir CalorFS</button>
       </div>
 
@@ -522,7 +564,6 @@ dl.kv dd{margin:0;word-break:break-word}
           <div><label class="f">Puesto</label><input class="in" id="pfPuesto"></div>
           <div><label class="f">WhatsApp</label><input class="in" id="pfWhats" type="tel" inputmode="tel" placeholder="5512345678"></div>
         </div>
-        <p class="small muted hidden" id="pfLock" style="margin:10px 0 0">🔒 Tus datos aparecen en los reportes. Si necesitas corregir alguno, pídeselo al administrador.</p>
         <button class="btn block" id="btnSaveProf" style="margin-top:12px">Guardar cambios</button>
       </div>
       <div class="card">
@@ -537,10 +578,11 @@ dl.kv dd{margin:0;word-break:break-word}
           <button class="btn block" style="margin-top:12px">Actualizar contraseña</button>
         </form>
       </div>
-      <div class="card social-card hidden">
-        <h3>📣 Sígueme en redes · Fredy Safe</h3>
+      <div class="card social-card">
+        <h3>📣 Fredy Safe · redes y contacto</h3>
         <p class="small muted" style="margin-top:0">Contenido de seguridad e higiene en el trabajo.</p>
         <div class="social"></div>
+      <div class="contact-box hidden" style="margin-top:12px"></div>
         <button class="btn ghost block btn-share-app" style="margin-top:12px">🔗 Compartir CalorFS</button>
       </div>
       <div class="card">
@@ -552,6 +594,7 @@ dl.kv dd{margin:0;word-break:break-word}
           <dt>Servicio</dt><dd id="pMode"></dd>
           <dt>Sin conexión</dt><dd id="pSw">Verificando…</dd>
         </dl>
+        <button class="btn ghost block" style="margin-top:12px" onclick="window.__calorfsRepair && window.__calorfsRepair()">🔄 Forzar actualización de la app</button>
       </div>
       <button class="btn danger block" id="btnLogout">Cerrar sesión</button>
       <p class="small muted" style="text-align:center;margin-top:18px">CalorFS · Herramienta gratuita de apoyo para SST.<br>Método: Rothfusz (NOAA/NWS). Referencia normativa: NOM-015-STPS-2001.<br>Elaborado por José Alfredo González García · Fredy Safe</p>
@@ -580,6 +623,15 @@ const SUPER_ADMIN_EMAIL = CFG.SUPER_ADMIN_EMAIL || "jalfred.goga@gmail.com";
 // Enlace oficial que se comparte (si está vacío se usa la dirección actual sin "index.html")
 const APP_URL = (CFG.APP_URL || (location.origin + location.pathname.replace(/index\.html$/, ""))).trim();
 const BRAND = "Fredy Safe";    // tu marca personal: aparece en la app y en los reportes
+const WEB_URL = (CFG.WEB_URL || "").trim();
+const CONTACT_EMAIL = (CFG.CONTACT_EMAIL || "").trim();
+const webShort = WEB_URL.replace(/^https?:\/\//, "").replace(/\/$/, "");
+// Redirige desde direcciones viejas al dominio oficial (se activa en config.js)
+try {
+  const target = new URL(APP_URL);
+  if (CFG.REDIRIGIR_A_APP_URL && location.host !== target.host && /github\.io$|netlify\.app$|pages\.dev$/.test(location.host))
+    location.replace(target.origin + target.pathname + location.search);
+} catch {}
 const APP_VERSION = "2.2.0";
 // Enlace que se comparte: lleva la versión para que siempre abra la más reciente
 const shareUrl = () => APP_URL.replace(/[?#].*$/, "") + "?v=" + APP_VERSION;
@@ -1031,7 +1083,7 @@ function userRow(u, pending) {
     ${!me ? `<div class="acts">
       <a class="btn ghost sm" href="#" data-act="mail" data-id="${u.id}">✉️ Correo</a>
       ${u.whatsapp ? `<a class="btn ghost sm" href="${h(waLink(u.whatsapp))}" target="_blank" rel="noopener">💬 WhatsApp</a>` : ""}
-      ${!sup || iAmSuper() ? `<button class="btn ghost sm" data-act="editar" data-id="${u.id}">✏️ Editar datos</button><button class="btn danger sm" data-act="eliminar" data-id="${u.id}">🗑 Eliminar</button>` : ""}
+      ${!sup || iAmSuper() ? `<button class="btn danger sm" data-act="eliminar" data-id="${u.id}">🗑 Eliminar</button>` : ""}
     </div>` : ""}</div></div>`;
 }
 function initAdmin() {
@@ -1041,21 +1093,6 @@ function initAdmin() {
     const u = S.users.find(x => x.id === b.dataset.id); if (!u) return;
     const by = autor(), who = u.nombre || u.email;
     if (b.dataset.act === "mail") { e.preventDefault(); gmailCompose(u.email, "CalorFS", `Hola ${u.nombre || ""}:\n\n`); return; }
-    if (b.dataset.act === "editar") {
-      modal("Editar datos", `<label class="f" style="margin-top:0">Nombre completo</label><input class="in" id="edNombre" value="${h(u.nombre || "")}">
-        <label class="f">Puesto</label><input class="in" id="edPuesto" value="${h(u.puesto || "")}">
-        <label class="f">WhatsApp</label><input class="in" id="edWhats" type="tel" inputmode="tel" value="${h(fmtWa(u.whatsapp))}" placeholder="5512345678">
-        <p class="small muted">Correo: ${h(u.email)} (no se puede cambiar)</p>
-        <div class="btns"><button class="btn ghost" data-r="0">Cancelar</button><button class="btn sun" data-r="1">Guardar</button></div>`,
-        (m, close) => $$("[data-r]", m).forEach(x => x.onclick = async () => {
-          if (x.dataset.r !== "1") return close();
-          const nombre = $("#edNombre", m).value.trim();
-          if (!nombre) return toast("Escribe el nombre.");
-          try { await S.be.updateUser(u.id, { nombre, puesto: $("#edPuesto", m).value.trim(), whatsapp: cleanWa($("#edWhats", m).value) }); close(); toast("Datos actualizados ✔"); }
-          catch (er) { toast("Error: " + (er.code || er.message)); }
-        }));
-      return;
-    }
     if (b.dataset.act === "eliminar") {
       if (isSuperU(u)) return toast("El administrador principal no se puede eliminar.");
       if (!(await confirmDlg(`¿Eliminar a ${who} de CalorFS? Desaparece de la lista y pierde el acceso. Si vuelve a entrar con su correo, tendrá que solicitar acceso de nuevo y tú decides si lo autorizas.`, "Eliminar", true))) return;
@@ -1098,21 +1135,20 @@ function renderProfile() {
   $("#pAv").textContent = initials(p.nombre || p.email); $("#pName").textContent = p.nombre || "Sin nombre"; $("#pEmail").textContent = p.email;
   $("#pRole").innerHTML = `<span class="tag ${p.role === "admin" ? "adm" : "closed"}">${h(isSuperU(p) ? "Administrador principal" : roleName(p.role))}</span>`;
   if (document.activeElement?.closest?.("#v-perfil") == null) { $("#pfNombre").value = p.nombre || ""; $("#pfPuesto").value = p.puesto || ""; $("#pfWhats").value = fmtWa(p.whatsapp); }
-  // Solo los administradores editan datos; el usuario los ve pero no los cambia.
-  const canEdit = p.role === "admin";
-  ["#pfNombre", "#pfPuesto", "#pfWhats"].forEach(sel => { const el = $(sel); el.readOnly = !canEdit; el.tabIndex = canEdit ? 0 : -1; el.style.background = canEdit ? "" : "rgba(127,127,127,.12)"; el.style.borderStyle = canEdit ? "" : "dashed"; el.style.cursor = canEdit ? "" : "not-allowed"; });
-  $("#btnSaveProf").classList.toggle("hidden", !canEdit); $("#pfLock").classList.toggle("hidden", canEdit);
   $("#pVer").textContent = APP_VERSION; $("#pMode").textContent = DEMO ? "Demostración (local)" : "Cuentas en Firebase · reportes solo en tu dispositivo";
 }
 function renderSocial() {
   const list = activeSocial();
   const html = list.map(s => `<a href="${h(s.url)}" target="_blank" rel="noopener" style="--sc:${s.color}"><svg viewBox="0 0 24 24"><path d="M10.6 13.4a1 1 0 0 1 0-1.4l3.4-3.4a3 3 0 0 1 4.2 4.2l-2 2a1 1 0 1 1-1.4-1.4l2-2a1 1 0 0 0-1.4-1.4L12 13.4a1 1 0 0 1-1.4 0zm2.8-2.8a1 1 0 0 1 0 1.4L10 15.4a3 3 0 0 1-4.2-4.2l2-2a1 1 0 0 1 1.4 1.4l-2 2a1 1 0 0 0 1.4 1.4L12 10.6a1 1 0 0 1 1.4 0z"/></svg><span>${h(s.red)}</span></a>`).join("");
   $$(".social").forEach(el => el.innerHTML = html);
-  $$(".social-card").forEach(el => el.classList.toggle("hidden", !list.length));
+  const subj = encodeURIComponent("Información de servicios SST (desde CalorFS)");
+  const ch = (WEB_URL ? `<a class="cl" href="${h(WEB_URL)}" target="_blank" rel="noopener">🌐<div>${h(webShort)}<span>Servicios y cursos de seguridad e higiene</span></div></a>` : "")
+    + (CONTACT_EMAIL ? `<a class="cl" href="mailto:${h(CONTACT_EMAIL)}?subject=${subj}">✉️<div>${h(CONTACT_EMAIL)}<span>Cotiza evaluaciones NOM-015 (TGBH), capacitación y consultoría</span></div></a>` : "");
+  $$(".contact-box").forEach(el => { el.innerHTML = ch; el.classList.toggle("hidden", !ch); });
+  $$(".social-card").forEach(el => el.classList.toggle("hidden", !list.length && !ch));
 }
 function initProfile() {
   $("#btnSaveProf").onclick = async () => {
-    if (S.profile?.role !== "admin") return toast("Solo el administrador puede cambiar los datos.");
     try { await S.be.updateUser(S.user.uid, { nombre: $("#pfNombre").value.trim(), puesto: $("#pfPuesto").value.trim(), whatsapp: cleanWa($("#pfWhats").value) }); toast("Datos actualizados ✔"); }
     catch (e) { toast("Error: " + (e.code || e.message)); }
   };
@@ -1139,7 +1175,7 @@ function initProfile() {
 }
 async function shareApp() {
   const url = shareUrl();
-  const text = `CalorFS: calcula el índice de calor (NOAA), conoce el nivel de riesgo y genera tu reporte PDF en segundos. Herramienta gratuita de ${BRAND} para SST.`;
+  const text = `CalorFS: calcula el índice de calor (NOAA), conoce el nivel de riesgo y genera tu reporte PDF en segundos. Herramienta gratuita de ${BRAND} para SST.${webShort ? " Más en " + webShort : ""}`;
   try { if (navigator.share) { await navigator.share({ title: "CalorFS", text, url }); return; } } catch (e) { if (e.name === "AbortError") return; }
   try { await navigator.clipboard.writeText(text + " " + url); toast("Enlace copiado: pégalo en tus redes o WhatsApp."); } catch { toast(url); }
 }
@@ -1344,6 +1380,8 @@ function pdfFooter(d) {
     d.setPage(i); d.setDrawColor(220, 227, 234); d.line(12, H - 14, W - 12, H - 14);
     d.setFont("helvetica", "normal"); d.setFontSize(7.5); d.setTextColor(93, 107, 122);
     d.text(`Página ${i} de ${n}`, W - 12, H - 15.5, { align: "right" });
+    const cont = [webShort, CONTACT_EMAIL].filter(Boolean).join("  ·  ");
+    if (cont) { d.setFont("helvetica", "bold"); d.setTextColor(15, 53, 87); d.text(pt(cont), 12, H - 15.5); d.setFont("helvetica", "normal"); d.setTextColor(93, 107, 122); }
     d.text(pt("Método: ecuación de regresión de Rothfusz (NOAA/NWS). Herramienta de tamizaje; no sustituye la evaluación TGBH de la NOM-015-STPS-2001."), 12, H - 9.5);
     const soc = activeSocial().map(s => s.usuario || s.red).join("  |  ");
     d.setFont("helvetica", "bold"); d.setFontSize(6.8); d.setTextColor(242, 107, 29);

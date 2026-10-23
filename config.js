@@ -20,5 +20,13 @@ export const FIREBASE_CONFIG = {
 export const SUPER_ADMIN_EMAIL = "jalfred.goga@gmail.com";
 
 // 3) Enlace oficial de tu app, el que se comparte con el botón "Compartir CalorFS".
-//    Ejemplo: "https://tu-usuario.github.io/calorfs/"
-export const APP_URL = "https://calorfs-fredysafe.netlify.app/";
+export const APP_URL = "https://calorfs.fredhia.com/";
+
+// 4) Tu empresa: página web y correo de contacto (aparecen en la app y en cada PDF).
+export const WEB_URL = "https://www.fredhia.com";
+export const CONTACT_EMAIL = "comercial@fredhia.com";
+
+// 5) Redirección: cámbialo a true SOLO cuando https://calorfs.fredhia.com ya abra bien.
+//    Entonces quien entre por los enlaces viejos (github.io, netlify.app, pages.dev)
+//    pasará automáticamente a la dirección nueva.
+export const REDIRIGIR_A_APP_URL = false;
