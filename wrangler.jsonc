@@ -1,0 +1,8 @@
+{
+  // CalorFS en Cloudflare: publica los archivos de este repositorio tal cual (sitio estático).
+  "name": "calorfs",
+  "compatibility_date": "2025-06-01",
+  "assets": {
+    "directory": "."
+  }
+}
